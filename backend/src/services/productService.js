@@ -6,13 +6,13 @@ export const getAllProducts = async () => {
 };
 
 export const createProduct = async (data) => {
-    if (!data.name || !data.priceTo || !data.categoryId) {
-        throw new Error('Nome, preço e categoria são obrigatórios');
+    if (!data.name || !data.priceTo || !data.categoryId || !data.mainImage) {
+        throw new Error('Nome, preço, categoria e imagem principal são obrigatórios.');
     }
 
     const categoryExists = await categoryRepository.findById(data.categoryId);
     if (!categoryExists) {
-        throw new Error('Caategoria não existe');
+        throw new Error('Categoria não existe');
     }
 
     return await productRepository.create(data);
