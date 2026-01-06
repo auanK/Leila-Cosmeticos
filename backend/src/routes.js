@@ -1,6 +1,8 @@
 import express from 'express';
 import * as authController from './controllers/authController.js';
-import { verifyToken } from './middlewares/authMiddleware.js';
+import * as categoryController from './controllers/categoryController.js';
+import * as productController from './controllers/productController.js';
+import { verifyToken, requireAdmin } from './middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -11,11 +13,17 @@ router.get('/', (req, res) => {
 router.post('/auth/register', authController.register);
 router.post('/auth/login', authController.login);
 
+router.get('/categories', categoryController.list);
+router.get('/products', productController.list);
+
 router.get('/users/me', verifyToken, (req, res) => {
     res.json({
         message: "Você está autenticado!",
         userData: req.user
     });
 });
+
+router.post('/categories', verifyToken, requireAdmin, categoryController.create);
+router.post('/products', verifyToken, requireAdmin, productController.create);
 
 export default router;
