@@ -19,3 +19,10 @@ export const verifyToken = (req, res, next) => {
         res.status(403).json({ error: 'Token inválido.' });
     }
 };
+
+export const requireAdmin = (req, res, next) => {
+    if (!req.user || !req.user.isAdmin) {
+        return res.status(403).json({ error: 'Acesso negado. Permissões insuficientes.' });
+    }
+    next();
+};
