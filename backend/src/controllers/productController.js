@@ -21,7 +21,8 @@ export const create = async (req, res) => {
             brand: req.body.brand,
             skinType: req.body.skin_type,
             weightGrams: req.body.weight_grams,
-            isActive: req.body.is_active
+            isActive: req.body.is_active,
+            mainImage: req.body.main_image
         };
 
         const newProduct = await productService.createProduct(productData);
