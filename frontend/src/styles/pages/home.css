@@ -1,0 +1,42 @@
+/* Hero Banner */
+.hero-banner {
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 218px;
+  border-radius: 8px;
+  margin: 12px 16px;
+}
+
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+}
+
+.hero-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #fcf8f9;
+}
+
+.hero-dot.inactive {
+  opacity: 0.5;
+}
+
+/* Category Nav */
+.category-nav {
+  padding-bottom: 12px;
+  overflow-x: auto;
+}
+
+.category-tabs {
+  display: flex;
+  border-bottom: 1px solid #e7cfd7;
+  padding: 0 16px;
+  gap: 32px;
+}

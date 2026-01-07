@@ -1,0 +1,99 @@
+/* Layout e estrutura da página */
+.layout-container {
+  display: flex;
+  height: 100%;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+.layout-content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Página principal */
+.page-container {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  flex-direction: column;
+  background-color: #fcf8f9;
+  overflow-x: hidden;
+}
+
+.page-content {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 20px 16px;
+  gap: 4px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  flex: 1;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+}
+
+.breadcrumb-link {
+  font-size: 16px;
+  font-weight: 500;
+  color: #9a4c66;
+}
+
+.breadcrumb-current {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1b0d12;
+}
+
+/* Títulos */
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1b0d12;
+  padding: 16px;
+  min-width: 288px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1b0d12;
+  letter-spacing: -0.015em;
+  padding: 20px 16px 12px;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.footer-text {
+  color: #9a4c66;
+  font-size: 16px;
+}
+
+/* Responsividade para páginas internas */
+@media (min-width: 1024px) {
+  .page-content {
+    padding: 20px 160px;
+  }
+  
+  .product-detail-container {
+    padding: 20px 160px;
+  }
+}

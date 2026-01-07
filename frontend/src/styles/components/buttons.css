@@ -1,0 +1,48 @@
+/* Botões */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.btn-lg {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 16px;
+}
+
+.btn-primary {
+  background-color: #e64c7f;
+  color: #fbf8f9;
+}
+
+.btn-primary:hover {
+  background-color: #d43d6f;
+}
+
+.btn-secondary {
+  background-color: #f3e8eb;
+  color: #1b0e12;
+}
+
+.btn-secondary:hover {
+  background-color: #e8d8dc;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-container {
+  display: flex;
+  padding: 12px 16px;
+}
