@@ -1,0 +1,108 @@
+/* Profile */
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 512px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.profile-avatar {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1d0c11;
+  letter-spacing: -0.015em;
+}
+
+.profile-email {
+  font-size: 16px;
+  color: #a1455d;
+}
+
+.profile-edit-link {
+  font-size: 16px;
+  color: #a1455d;
+  cursor: pointer;
+}
+
+.profile-edit-link:hover {
+  text-decoration: underline;
+}
+
+.profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  min-height: 56px;
+  background-color: #fcf8f9;
+}
+
+.profile-menu-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f4e6ea;
+  border-radius: 8px;
+  color: #1d0c11;
+}
+
+.profile-menu-text {
+  font-size: 16px;
+  color: #1d0c11;
+  flex: 1;
+}
+
+/* Login */
+.login-container {
+  max-width: 512px;
+  width: 100%;
+  padding: 20px;
+}
+
+.forgot-password {
+  font-size: 14px;
+  color: #955067;
+  padding: 4px 16px 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}

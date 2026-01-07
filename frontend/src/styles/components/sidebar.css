@@ -1,0 +1,164 @@
+/* Sidebar de filtros */
+.sidebar-filters {
+  display: none;
+  flex-direction: column;
+  width: 320px;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b0d12;
+  letter-spacing: -0.015em;
+  padding: 16px 16px 8px;
+}
+
+.filter-section {
+  padding: 0 16px;
+}
+
+.filter-checkbox-label {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  cursor: pointer;
+  align-items: center;
+}
+
+.filter-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e7cfd7;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  accent-color: #ee2b6c;
+}
+
+.filter-checkbox:checked {
+  background-color: #ee2b6c;
+  border-color: #ee2b6c;
+}
+
+.filter-label-text {
+  font-size: 16px;
+  color: #1b0d12;
+}
+
+.color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 16px;
+}
+
+.color-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e7cfd7;
+  cursor: pointer;
+  position: relative;
+}
+
+.color-swatch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.color-swatch.selected {
+  border: 3px solid #fcf8f9;
+  box-shadow: 0 0 0 2px #ee2b6c;
+}
+
+.price-range {
+  padding: 16px;
+}
+
+.price-range-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1b0d12;
+  margin-bottom: 12px;
+}
+
+.price-range-bar {
+  height: 4px;
+  background-color: #e7cfd7;
+  border-radius: 2px;
+  margin-top: 6px;
+  position: relative;
+}
+
+.price-range-fill {
+  position: absolute;
+  left: 60%;
+  right: 15%;
+  height: 100%;
+  background-color: #ee2b6c;
+  border-radius: 2px;
+}
+
+@media (min-width: 768px) {
+  .sidebar-filters {
+    display: flex;
+  }
+}
+
+/* Sidebar do perfil */
+.profile-sidebar {
+  display: none;
+  flex-direction: column;
+  width: 320px;
+}
+
+.profile-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 700px;
+  background-color: #fbf8f9;
+  padding: 16px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.sidebar-menu-item:hover {
+  background-color: #f3e8eb;
+}
+
+.sidebar-menu-item.active {
+  background-color: #f3e8eb;
+}
+
+.sidebar-menu-icon {
+  color: #1b0e12;
+}
+
+.sidebar-menu-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1b0e12;
+}
+
+@media (min-width: 768px) {
+  .profile-sidebar {
+    display: flex;
+  }
+}

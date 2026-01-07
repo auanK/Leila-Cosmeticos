@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './styles/global.css';
+import './styles/index.css';
 import { AuthProvider } from './contexts/AuthContext';
 
 import Home from './pages/Home';
