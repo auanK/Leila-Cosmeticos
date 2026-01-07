@@ -1,18 +1,16 @@
 import * as productRepository from '../repositories/productRepository.js';
-import * as categoryRepository from '../repositories/categoryRepository.js';
 
 export const getAllProducts = async () => {
     return await productRepository.findAll();
 };
 
 export const createProduct = async (data) => {
-    if (!data.name || !data.priceTo || !data.categoryId || !data.mainImage) {
-        throw new Error('Nome, preço, categoria e imagem principal são obrigatórios.');
+    if (!data.name || !data.priceTo || !data.mainImage) {
+        throw new Error('Nome, preço e imagem principal são obrigatórios');
     }
 
-    const categoryExists = await categoryRepository.findById(data.categoryId);
-    if (!categoryExists) {
-        throw new Error('Categoria não existe');
+    if (!data.categoryIds || !Array.isArray(data.categoryIds) || data.categoryIds.length === 0) {
+        throw new Error('O produto precisa pertencer a pelo menos uma categoria.');
     }
 
     return await productRepository.create(data);

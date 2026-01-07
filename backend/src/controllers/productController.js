@@ -12,7 +12,7 @@ export const list = async (req, res) => {
 export const create = async (req, res) => {
     try {
         const productData = {
-            categoryId: req.body.category_id,
+            categoryIds: req.body.category_ids, 
             name: req.body.name,
             description: req.body.description,
             priceFrom: req.body.price_from,
