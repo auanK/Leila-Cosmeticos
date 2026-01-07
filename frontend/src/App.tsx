@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './styles/global.css';
+import { AuthProvider } from './contexts/AuthContext';
 
-// Pages
 import Home from './pages/Home';
 import ProductListing from './pages/ProductListing';
 import ProductDetail from './pages/ProductDetail';
@@ -16,8 +16,9 @@ import Reviews from './pages/Reviews';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
         {/* Loja */}
         <Route path="/" element={<Home />} />
         <Route path="/produtos" element={<ProductListing />} />
@@ -36,6 +37,7 @@ function App() {
         <Route path="/avaliacoes" element={<Reviews />} />
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 

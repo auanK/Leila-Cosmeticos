@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { PencilIcon } from '../components/Icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const addresses = [
   { 
@@ -21,6 +24,32 @@ const addresses = [
 ];
 
 const Addresses = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="page-container">
+        <div className="layout-container">
+          <Header />
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            Carregando...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="page-container">
       <div className="layout-container">

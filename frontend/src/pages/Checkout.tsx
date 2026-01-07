@@ -15,7 +15,7 @@ const Checkout = () => {
         <Header />
         <div style={{ padding: '20px 16px', display: 'flex', flex: 1, justifyContent: 'center' }}>
           <div className="main-content">
-            {/* Checkout Steps */}
+            {/* Checkout */}
             <div className="checkout-steps">
               <Link to="/carrinho" className="checkout-step">Carrinho</Link>
               <span className="checkout-step">/</span>
@@ -26,7 +26,7 @@ const Checkout = () => {
               <span className="checkout-step active">Pagamento</span>
             </div>
 
-            {/* Delivery Section */}
+            {/* Delivery */}
             <h2 className="form-section-title">Entrega</h2>
             <div className="form-group">
               <label className="form-label">CEP</label>
@@ -57,7 +57,7 @@ const Checkout = () => {
               </label>
             </div>
 
-            {/* Payment Section */}
+            {/* Payment */}
             <h2 className="form-section-title">Pagamento</h2>
             <div className="tabs-container">
               <div className="payment-tabs">

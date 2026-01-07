@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import { useProducts } from '../hooks/useProducts';
 
-const products = [
+const fallbackProducts = [
   { title: "Batom Matte Veludo - Rosa", price: "R$29,90", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBiY7j4pzUG8Eu7FipJ-YlDfxcs8Ljra0OUjXru4tzVEqElQSm4qsrSbzj30cmJjyCaNmFzKyJ-YqHTT4iP99IxvEwOpnVxlEZgXsauxNlyzrReBHR4yDqxOymwG4U_exjgvp0wKJ0bpG4BbMnF707AMNMNZCMuWlbj8ZEdbHB0S6ZBgSVhKsb4hYZdfSsnj8swuoSGojQfnGmPAYWgWmnbD1cw23Pobd4m-a5SlFnEx0H7a-7P36-7bo1GMwojF9qCfEA1rT64xsDD" },
   { title: "Batom Líquido Longa Duração - Vermelho", price: "R$34,50", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDf64BpDhATOPgsuPHqKDpXCoP9k_HQgbWNAQ9F5pwTLYTm8mi640P9TDyRXL8utHJWthPwl2tH7EDCME6wm4gv48arh8dxqKL6UVxk7kEQBsLBngtSA6A-KmOe8QsT_dqUsIlcq7w5v_LwAzNxzUZ-TS6_KOBwDi0RCrRLWySkU-k4101kw6UY7GFHJq134MC1B6jmdElOMFRAbggW1wityken8gCnzbTSoNwyn18OXhuS2-iY6zREQS_YO3vp4BXqepU2LsdvgvPZ" },
   { title: "Batom Cremoso Hidratante - Nude", price: "R$25,00", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD2n6yBuxEQCei0rpmXJ49db9CSxxhpff-gLH8p3q8IRlXXC0c3cagWfeZhs7Xtbc3L05LG0Q_rKWeoLMl7U5m2jEn_-APFsKzCH-Rx2qPWn-WKfCsGtLDUzoodGkIgDy5PVbveNgHwxiDNPohf4VTXCuXC7gO6Whx6aUW-vrtH1lurmHcIEsEYC6_JJlEku9dZNEmrmdFBOtmiKLKvi3jurgIJgG4WhRZ3Nyff-71YCFMzv0KdRQDmdDU5NyT6S1t4wGLomLHD9_Cv" },
@@ -14,7 +15,23 @@ const brands = ["Cosméticos Aurora", "Beleza Radiante", "Glamour Essencial", "T
 const skinTypes = ["Seca", "Oleosa", "Mista"];
 const colors = ["rgb(255, 192, 203)", "rgb(255, 105, 180)", "rgb(199, 21, 133)", "rgb(219, 112, 147)", "rgb(255, 182, 193)"];
 
+const formatPrice = (priceFrom?: number, priceTo?: number) => {
+  const price = priceTo || priceFrom || 0;
+  return `R$ ${price.toFixed(2).replace('.', ',')}`;
+};
+
 const ProductListing = () => {
+  const { products, isLoading, error } = useProducts();
+
+  const displayProducts = products.length > 0 
+    ? products.map(p => ({
+        id: p.id,
+        title: p.name,
+        price: formatPrice(p.price_from, p.price_to),
+        img: p.main_image || fallbackProducts[0].img
+      }))
+    : fallbackProducts;
+
   return (
     <div className="page-container">
       <div className="layout-container">
@@ -86,18 +103,24 @@ const ProductListing = () => {
 
             {/* Product Grid */}
             <div className="product-grid">
-              {products.map((item, i) => (
-                <Link to="/produto" key={i} className="product-card">
-                  <div
-                    className="product-image"
-                    style={{ backgroundImage: `url("${item.img}")` }}
-                  />
-                  <div className="product-info">
-                    <p className="product-title">{item.title}</p>
-                    <p className="product-price">{item.price}</p>
-                  </div>
-                </Link>
-              ))}
+              {isLoading ? (
+                <p>Carregando produtos...</p>
+              ) : error ? (
+                <p style={{ color: 'red' }}>{error}</p>
+              ) : (
+                displayProducts.map((item, i) => (
+                  <Link to="/produto" key={i} className="product-card">
+                    <div
+                      className="product-image"
+                      style={{ backgroundImage: `url("${item.img}")` }}
+                    />
+                    <div className="product-info">
+                      <p className="product-title">{item.title}</p>
+                      <p className="product-price">{item.price}</p>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>

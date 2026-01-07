@@ -1,15 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { StarIcon } from '../components/Icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const Reviews = () => {
+  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleSubmit = () => {
     navigate('/pedidos');
   };
+
+  if (isLoading) {
+    return (
+      <div className="page-container" style={{ backgroundColor: '#fbf8f9' }}>
+        <div className="layout-container">
+          <Header />
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            Carregando...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="page-container" style={{ backgroundColor: '#fbf8f9' }}>

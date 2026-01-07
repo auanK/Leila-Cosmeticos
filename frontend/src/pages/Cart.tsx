@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CartItem {
   id: number;
@@ -31,8 +32,24 @@ const initialItems: CartItem[] = [
 ];
 
 const Cart = () => {
-  const navigate = useNavigate();
   const [items, setItems] = useState<CartItem[]>(initialItems);
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const updateQuantity = (id: number, delta: number) => {
     setItems(items.map(item => {
@@ -106,7 +123,7 @@ const Cart = () => {
             </div>
           </div>
 
-          {/* Summary Sidebar */}
+          {/* Sidebar */}
           <div className="order-summary">
             <h2 className="order-summary-title">Resumo do Pedido</h2>
             <div className="order-summary-content">

@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import { useProducts } from '../hooks/useProducts';
+import { useCategories } from '../hooks/useCategories';
 
-const products = [
+const fallbackProducts = [
   { 
     title: "Sérum Facial Hidratante", 
     price: "R$ 89,90", 
@@ -24,27 +26,52 @@ const products = [
   },
 ];
 
-const categories = ['Skincare', 'Maquiagem', 'Cabelos', 'Corpo'];
+const fallbackCategories = ['Skincare', 'Maquiagem', 'Cabelos', 'Corpo'];
+
+const formatPrice = (priceFrom?: number, priceTo?: number) => {
+  const price = priceTo || priceFrom || 0;
+  return `R$ ${price.toFixed(2).replace('.', ',')}`;
+};
 
 const Home = () => {
+  const { products, isLoading: productsLoading } = useProducts();
+  const { categories, isLoading: categoriesLoading } = useCategories();
+
+  const displayProducts = products.length > 0 
+    ? products.slice(0, 4).map(p => ({
+        id: p.id,
+        title: p.name,
+        price: formatPrice(p.price_from, p.price_to),
+        img: p.main_image || fallbackProducts[0].img
+      }))
+    : fallbackProducts;
+
+  const displayCategories = categories.length > 0
+    ? categories.map(c => c.name)
+    : fallbackCategories;
+
   return (
     <div className="page-container">
       <div className="layout-container">
         <Header />
         <div style={{ padding: '20px 16px', display: 'flex', flex: 1, justifyContent: 'center' }}>
           <div className="main-content">
-            {/* Category Nav */}
+            {/* Category */}
             <div className="category-nav">
               <div className="category-tabs">
-                {categories.map((cat, i) => (
-                  <Link
-                    key={i}
-                    to="/produtos"
-                    className={`tab ${i === 0 ? 'active' : ''}`}
-                  >
-                    {cat}
-                  </Link>
-                ))}
+                {categoriesLoading ? (
+                  <span>Carregando...</span>
+                ) : (
+                  displayCategories.map((cat, i) => (
+                    <Link
+                      key={i}
+                      to="/produtos"
+                      className={`tab ${i === 0 ? 'active' : ''}`}
+                    >
+                      {cat}
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
 
@@ -64,18 +91,22 @@ const Home = () => {
 
             <h2 className="section-title">Produtos em Destaque</h2>
             <div className="product-grid">
-              {products.map((p, i) => (
-                <Link to="/produto" key={i} className="product-card">
-                  <div
-                    className="product-image"
-                    style={{ backgroundImage: `url("${p.img}")` }}
-                  />
-                  <div className="product-info">
-                    <p className="product-title">{p.title}</p>
-                    <p className="product-price">{p.price}</p>
-                  </div>
-                </Link>
-              ))}
+              {productsLoading ? (
+                <p>Carregando produtos...</p>
+              ) : (
+                displayProducts.map((p, i) => (
+                  <Link to="/produto" key={i} className="product-card">
+                    <div
+                      className="product-image"
+                      style={{ backgroundImage: `url("${p.img}")` }}
+                    />
+                    <div className="product-info">
+                      <p className="product-title">{p.title}</p>
+                      <p className="product-price">{p.price}</p>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
 
             <footer className="footer">

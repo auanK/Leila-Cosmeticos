@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import { useAuth } from '../contexts/AuthContext';
 
 const orders = [
   { id: '#12345', date: '22 de Julho de 2024' },
@@ -8,6 +11,32 @@ const orders = [
 ];
 
 const Orders = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="page-container" style={{ backgroundColor: '#fbf8f9' }}>
+        <div className="layout-container">
+          <Header showNav={true} />
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            Carregando...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="page-container" style={{ backgroundColor: '#fbf8f9' }}>
       <div className="layout-container">

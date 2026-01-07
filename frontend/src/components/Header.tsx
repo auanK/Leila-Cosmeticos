@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import { LogoIcon, SearchIcon, HeartIcon, ShoppingBagIcon } from './Icons';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   showNav?: boolean;
 }
 
 const Header = ({ showNav = true }: HeaderProps) => {
+  const { user, isAuthenticated } = useAuth();
+
   return (
     <header className="header">
       <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
@@ -47,13 +50,32 @@ const Header = ({ showNav = true }: HeaderProps) => {
             <ShoppingBagIcon />
           </Link>
         </div>
-        <Link
-          to="/perfil"
-          className="header-avatar"
-          style={{
-            backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuC0qK1rRCblujxIaoQHfKUcDdzx4sHf6R406BE6-e7pi_ow-0_WH2bncnW1QSgN1j8gYXdOQAV-fuLaMa0aVaDvvzilmvPmRAH1NUJKqwG-4yLoXRram8-a-RVwR3FyyzT1hWVtjTRiSrVcgE56BG1Zxb8Kp88gqZMNqOIZEIM9p5ynHPc-plhMUMMCFFXf_X1Te93uAqlySJiBpdxRPhEWM_kER-lvPkJUyu5BRdAuObitiXxq1BuZlt4wVMmdbFmaint51WmogyJg")'
-          }}
-        />
+        {isAuthenticated ? (
+          <Link
+            to="/perfil"
+            className="header-avatar"
+            style={{
+              backgroundImage: 'none',
+              backgroundColor: '#ff6b93',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '14px',
+            }}
+          >
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="header-avatar"
+            style={{
+              backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuC0qK1rRCblujxIaoQHfKUcDdzx4sHf6R406BE6-e7pi_ow-0_WH2bncnW1QSgN1j8gYXdOQAV-fuLaMa0aVaDvvzilmvPmRAH1NUJKqwG-4yLoXRram8-a-RVwR3FyyzT1hWVtjTRiSrVcgE56BG1Zxb8Kp88gqZMNqOIZEIM9p5ynHPc-plhMUMMCFFXf_X1Te93uAqlySJiBpdxRPhEWM_kER-lvPkJUyu5BRdAuObitiXxq1BuZlt4wVMmdbFmaint51WmogyJg")'
+            }}
+          />
+        )}
       </div>
     </header>
   );

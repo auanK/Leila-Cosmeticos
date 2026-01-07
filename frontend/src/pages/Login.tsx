@@ -2,13 +2,52 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { GoogleIcon } from '../components/Icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login, register } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  
+  const [registerName, setRegisterName] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = () => {
-    navigate('/perfil');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await login(loginEmail, loginPassword);
+      navigate('/perfil');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await register(registerName, registerEmail, registerPassword, registerConfirmPassword);
+      navigate('/perfil');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar conta');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -34,14 +73,30 @@ const Login = () => {
               </div>
             </div>
 
+            {error && (
+              <div style={{ 
+                backgroundColor: '#fee2e2', 
+                color: '#dc2626', 
+                padding: '12px', 
+                borderRadius: '8px', 
+                marginBottom: '16px',
+                fontSize: '14px'
+              }}>
+                {error}
+              </div>
+            )}
+
             {activeTab === 'login' && (
-              <>
+              <form onSubmit={handleLogin}>
                 <div className="form-group">
                   <label className="form-label">Email</label>
                   <input
                     type="email"
                     className="form-input"
                     placeholder="email@exemplo.com"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    required
                   />
                 </div>
                 <div className="form-group">
@@ -50,39 +105,46 @@ const Login = () => {
                     type="password"
                     className="form-input"
                     placeholder="Sua senha"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required
                   />
                 </div>
                 <p className="forgot-password">Esqueci minha senha</p>
 
                 <div className="btn-container">
                   <button
+                    type="submit"
                     className="btn btn-primary btn-block"
-                    onClick={handleLogin}
+                    disabled={isLoading}
                   >
-                    Entrar
+                    {isLoading ? 'Entrando...' : 'Entrar'}
                   </button>
                 </div>
 
                 <div className="btn-container">
                   <button
+                    type="button"
                     className="btn btn-secondary btn-block google-btn"
-                    onClick={handleLogin}
                   >
                     <GoogleIcon />
                     Entrar com Google
                   </button>
                 </div>
-              </>
+              </form>
             )}
 
             {activeTab === 'register' && (
-              <>
+              <form onSubmit={handleRegister}>
                 <div className="form-group">
                   <label className="form-label">Nome Completo</label>
                   <input
                     type="text"
                     className="form-input"
                     placeholder="Seu nome"
+                    value={registerName}
+                    onChange={(e) => setRegisterName(e.target.value)}
+                    required
                   />
                 </div>
                 <div className="form-group">
@@ -91,6 +153,9 @@ const Login = () => {
                     type="email"
                     className="form-input"
                     placeholder="email@exemplo.com"
+                    value={registerEmail}
+                    onChange={(e) => setRegisterEmail(e.target.value)}
+                    required
                   />
                 </div>
                 <div className="form-group">
@@ -99,6 +164,9 @@ const Login = () => {
                     type="password"
                     className="form-input"
                     placeholder="Crie uma senha"
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    required
                   />
                 </div>
                 <div className="form-group">
@@ -107,18 +175,22 @@ const Login = () => {
                     type="password"
                     className="form-input"
                     placeholder="Confirme sua senha"
+                    value={registerConfirmPassword}
+                    onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                    required
                   />
                 </div>
 
                 <div className="btn-container">
                   <button
+                    type="submit"
                     className="btn btn-primary btn-block"
-                    onClick={handleLogin}
+                    disabled={isLoading}
                   >
-                    Criar Conta
+                    {isLoading ? 'Criando...' : 'Criar Conta'}
                   </button>
                 </div>
-              </>
+              </form>
             )}
           </div>
         </div>

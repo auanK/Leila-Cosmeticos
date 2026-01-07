@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import { useAuth } from '../contexts/AuthContext';
 
 const wishlistProducts = [
   { title: "Batom Matte de Longa Duração", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCb7m6h-DV66U4Lfapw195KiqAwBI4o_ofM9WBDIB91tE1dciePsr-MkB4xle-hst414gxLdFPMRK6ZIMw0ZgOXHTanKfVW4Dq3nIWtBzlTFKQgW99fZom8XbDy32WMSMhMeGpq7TAxDMRmdq5U6Ahw0_UOS_NU9eH2AgiWCYfrN5CfU-prht2tQ4woCCWaT3DG3lUGy3zs1-3Zr00gR199_qSQ6hpxjSufnxtuDbuFY8aOEMSqb5l5nQ4kpeZbyN_Lj8k65XoIiu_C" },
@@ -12,7 +14,31 @@ const wishlistProducts = [
 ];
 
 const Wishlist = () => {
+  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="page-container" style={{ backgroundColor: '#fbf8f9' }}>
+        <div className="layout-container">
+          <Header />
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            Carregando...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="page-container" style={{ backgroundColor: '#fbf8f9' }}>
