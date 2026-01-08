@@ -5,6 +5,7 @@ import * as productController from './controllers/productController.js';
 import * as cartController from './controllers/cartController.js';
 import * as addressController from './controllers/addressController.js';
 import * as checkoutController from './controllers/checkoutController.js';
+import * as orderController from './controllers/orderController.js';
 
 import { verifyToken, requireAdmin } from './middlewares/authMiddleware.js';
 
@@ -42,4 +43,7 @@ router.put('/addresses/:id', verifyToken, addressController.update);
 router.delete('/addresses/:id', verifyToken, addressController.remove);
 
 router.post('/checkout', verifyToken, checkoutController.checkout);
+
+router.get('/orders', verifyToken, orderController.list);
+
 export default router;
