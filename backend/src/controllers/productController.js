@@ -36,3 +36,13 @@ export const create = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+export const listRelated = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const products = await productService.getRelatedProducts(id);
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

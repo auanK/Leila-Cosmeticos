@@ -15,3 +15,7 @@ export const createProduct = async (data) => {
 
     return await productRepository.create(data);
 };
+
+export const getRelatedProducts = async (productId) => {
+    return await productRepository.findRelated(productId);
+};
