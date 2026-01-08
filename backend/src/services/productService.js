@@ -1,7 +1,7 @@
 import * as productRepository from '../repositories/productRepository.js';
 
-export const getAllProducts = async () => {
-    return await productRepository.findAll();
+export const getAllProducts = async (filters = {}) => {
+    return await productRepository.findAll(filters);
 };
 
 export const createProduct = async (data) => {

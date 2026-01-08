@@ -2,7 +2,12 @@ import * as productService from '../services/productService.js';
 
 export const list = async (req, res) => {
     try {
-        const products = await productService.getAllProducts();
+        const filters = {
+            categoryId: req.query.categoryId,
+            search: req.query.search
+        };
+
+        const products = await productService.getAllProducts(filters);
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -12,7 +17,7 @@ export const list = async (req, res) => {
 export const create = async (req, res) => {
     try {
         const productData = {
-            categoryIds: req.body.category_ids, 
+            categoryIds: req.body.category_ids,
             name: req.body.name,
             description: req.body.description,
             priceFrom: req.body.price_from,
