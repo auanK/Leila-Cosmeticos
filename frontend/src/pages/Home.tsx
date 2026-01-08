@@ -71,7 +71,7 @@ const Home = () => {
                   displayCategories.map((cat, i) => (
                     <Link
                       key={i}
-                      to={`/produtos?categoria=${encodeURIComponent(cat.toLowerCase())}`}
+                      to={`/produtos?categorias=${encodeURIComponent(cat.toLowerCase())}`}
                       className={`tab ${i === 0 ? 'active' : ''}`}
                     >
                       {cat}

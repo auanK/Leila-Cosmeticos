@@ -147,7 +147,9 @@ export interface RegisterData {
 
 export interface Product {
   id: number;
-  category_id: number;
+  category_id?: number;
+  category_ids?: number[];
+  category_names?: string[];
   name: string;
   description?: string;
   price_from?: number;

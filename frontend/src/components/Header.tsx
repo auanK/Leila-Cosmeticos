@@ -37,11 +37,11 @@ const Header = ({ showNav = true }: HeaderProps) => {
         {showNav && (
           <nav className="header-nav">
             <Link to="/produtos" className="header-nav-link">Novidades</Link>
-            <Link to="/produtos?categoria=maquiagem" className="header-nav-link">Maquiagem</Link>
-            <Link to="/produtos?categoria=skincare" className="header-nav-link">Skincare</Link>
-            <Link to="/produtos?categoria=cabelo" className="header-nav-link">Cabelo</Link>
-            <Link to="/produtos?categoria=perfumes" className="header-nav-link">Perfumes</Link>
-            <Link to="/produtos?categoria=promocoes" className="header-nav-link">Promoções</Link>
+            <Link to="/produtos?categorias=maquiagem" className="header-nav-link">Maquiagem</Link>
+            <Link to="/produtos?categorias=skincare" className="header-nav-link">Skincare</Link>
+            <Link to="/produtos?categorias=cabelos" className="header-nav-link">Cabelos</Link>
+            <Link to="/produtos?categorias=perfumes" className="header-nav-link">Perfumes</Link>
+            <Link to="/produtos?categorias=promocoes" className="header-nav-link">Promoções</Link>
           </nav>
         )}
       </div>
