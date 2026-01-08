@@ -4,6 +4,8 @@ import * as categoryController from './controllers/categoryController.js';
 import * as productController from './controllers/productController.js';
 import * as cartController from './controllers/cartController.js';
 import * as addressController from './controllers/addressController.js';
+import * as checkoutController from './controllers/checkoutController.js';
+
 import { verifyToken, requireAdmin } from './middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -39,4 +41,5 @@ router.post('/addresses', verifyToken, addressController.create);
 router.put('/addresses/:id', verifyToken, addressController.update);
 router.delete('/addresses/:id', verifyToken, addressController.remove);
 
+router.post('/checkout', verifyToken, checkoutController.checkout);
 export default router;
