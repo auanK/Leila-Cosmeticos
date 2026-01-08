@@ -6,6 +6,7 @@ import * as cartController from './controllers/cartController.js';
 import * as addressController from './controllers/addressController.js';
 import * as checkoutController from './controllers/checkoutController.js';
 import * as orderController from './controllers/orderController.js';
+import * as wishlistController from './controllers/wishlistController.js';
 
 import { verifyToken, requireAdmin } from './middlewares/authMiddleware.js';
 
@@ -45,5 +46,9 @@ router.delete('/addresses/:id', verifyToken, addressController.remove);
 router.post('/checkout', verifyToken, checkoutController.checkout);
 
 router.get('/orders', verifyToken, orderController.list);
+
+router.get('/wishlist', verifyToken, wishlistController.list);
+router.post('/wishlist', verifyToken, wishlistController.add);
+router.delete('/wishlist/:productId', verifyToken, wishlistController.remove);
 
 export default router;
