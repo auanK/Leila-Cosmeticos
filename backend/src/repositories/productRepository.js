@@ -99,3 +99,21 @@ export const create = async (data) => {
         client.release();
     }
 };
+
+export const findRelated = async (productId) => {
+    const query = `
+        SELECT * FROM products 
+        WHERE id IN (
+            SELECT product_id FROM product_categories 
+            WHERE category_id IN (
+                SELECT category_id FROM product_categories WHERE product_id = $1
+            )
+        )
+        AND id != $1
+        AND is_active = true
+        ORDER BY RANDOM()
+        LIMIT 4
+    `;
+    const result = await pool.query(query, [productId]);
+    return result.rows;
+};

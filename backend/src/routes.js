@@ -16,6 +16,7 @@ router.post('/auth/login', authController.login);
 
 router.get('/categories', categoryController.list);
 router.get('/products', productController.list);
+router.get('/products/:id/related', productController.listRelated);
 
 router.get('/users/me', verifyToken, (req, res) => {
     res.json({
