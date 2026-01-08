@@ -73,6 +73,11 @@ class ApiService {
     return this.request<Product[]>('/products');
   }
 
+  async getProduct(id: number): Promise<Product | null> {
+    const products = await this.getProducts();
+    return products.find(p => p.id === id) || null;
+  }
+
   async createProduct(productData: CreateProductData) {
     return this.request<Product>('/products', {
       method: 'POST',
@@ -88,6 +93,31 @@ class ApiService {
     return this.request<Category>('/categories', {
       method: 'POST',
       body: categoryData,
+    });
+  }
+
+  // Cart methods
+  async getCart() {
+    return this.request<Cart>('/cart');
+  }
+
+  async addToCart(productId: number, quantity: number = 1) {
+    return this.request<{ message: string }>('/cart/add', {
+      method: 'POST',
+      body: { productId, quantity },
+    });
+  }
+
+  async removeFromCart(itemId: number) {
+    return this.request<{ message: string }>(`/cart/item/${itemId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateCartItem(itemId: number, quantity: number) {
+    return this.request<{ message: string }>(`/cart/item/${itemId}`, {
+      method: 'PUT',
+      body: { quantity },
     });
   }
 }
@@ -117,7 +147,9 @@ export interface RegisterData {
 
 export interface Product {
   id: number;
-  category_id: number;
+  category_id?: number;
+  category_ids?: number[];
+  category_names?: string[];
   name: string;
   description?: string;
   price_from?: number;
@@ -159,6 +191,25 @@ export interface CreateCategoryData {
   name: string;
   description?: string;
   is_featured?: boolean;
+}
+
+export interface CartItem {
+  itemId: number;
+  productId: number;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+  subtotal: number;
+  currentStock: number;
+  error: string | null;
+}
+
+export interface Cart {
+  cartId?: number;
+  items: CartItem[];
+  total: number;
+  isValid: boolean;
 }
 
 export interface AuthResponse {
