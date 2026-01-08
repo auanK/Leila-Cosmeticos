@@ -95,6 +95,18 @@ const ProductDetail = () => {
     }
   };
 
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    if (!product) return;
+
+    // Navega para checkout com os parâmetros de compra imediata
+    navigate(`/checkout?productId=${product.id}&quantity=${quantity}`);
+  };
+
   const hasDiscount = product?.price_from && product?.price_to && Number(product.price_from) > Number(product.price_to);
   const discountPercent = hasDiscount 
     ? Math.round((1 - Number(product!.price_to) / Number(product!.price_from)) * 100)
@@ -518,8 +530,8 @@ const ProductDetail = () => {
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button
-                    onClick={handleAddToCart}
-                    disabled={adding || !product.is_active}
+                    onClick={handleBuyNow}
+                    disabled={!product.is_active}
                     style={{
                       width: '100%',
                       padding: '14px',
@@ -529,11 +541,11 @@ const ProductDetail = () => {
                       borderRadius: '8px',
                       fontSize: '16px',
                       fontWeight: '600',
-                      cursor: adding || !product.is_active ? 'not-allowed' : 'pointer',
-                      opacity: adding || !product.is_active ? 0.6 : 1
+                      cursor: !product.is_active ? 'not-allowed' : 'pointer',
+                      opacity: !product.is_active ? 0.6 : 1
                     }}
                   >
-                    {adding ? 'Adicionando...' : 'Comprar agora'}
+                    Comprar agora
                   </button>
                   
                   <button

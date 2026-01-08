@@ -5,9 +5,9 @@ import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 
 const orders = [
-  { id: '#12345', date: '22 de Julho de 2024' },
-  { id: '#67890', date: '15 de Junho de 2024' },
-  { id: '#11223', date: '03 de Maio de 2024' }
+  { id: '#12345', date: '20 de Dezembro de 2025' },
+  { id: '#67890', date: '15 de Novembro de 2025' },
+  { id: '#11223', date: '03 de Outubro de 2025' }
 ];
 
 const Orders = () => {

@@ -41,7 +41,7 @@ const Header = ({ showNav = true }: HeaderProps) => {
             <Link to="/produtos?categorias=skincare" className="header-nav-link">Skincare</Link>
             <Link to="/produtos?categorias=cabelos" className="header-nav-link">Cabelos</Link>
             <Link to="/produtos?categorias=perfumes" className="header-nav-link">Perfumes</Link>
-            <Link to="/produtos?categorias=promocoes" className="header-nav-link">Promoções</Link>
+            <Link to="/produtos?promocoes=true" className="header-nav-link">Promoções</Link>
           </nav>
         )}
       </div>

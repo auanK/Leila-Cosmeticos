@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -8,9 +8,13 @@ import { useAuth } from '../contexts/AuthContext';
 const Profile = () => {
   const { user, isAuthenticated, isLoading, logout, updateUser } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [phone, setPhone] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -24,15 +28,34 @@ const Profile = () => {
     if (user) {
       setName(user.name || '');
       setEmail(user.email || '');
+      setCpf(user.cpf || '');
+      setPhone(user.phone || '');
     }
   }, [user]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
     setMessage(null);
 
     try {
-      updateUser({ name, email });
+      // TODO: Implementar chamada API para update no backend
+      // Por enquanto, só atualiza localmente
+      updateUser({ name, email, phone });
       setMessage({ type: 'success', text: 'Dados salvos com sucesso!' });
     } catch {
       setMessage({ type: 'error', text: 'Erro ao salvar dados.' });
@@ -72,30 +95,61 @@ const Profile = () => {
           <div className="main-content">
             <div className="profile-content">
               <div className="profile-card">
-                <div className="profile-header">
+                {/* Avatar editável */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                  />
                   <div
-                    className="profile-avatar"
+                    onClick={handleAvatarClick}
                     style={{
-                      backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuD6_iY1LQAk_SuACxa6D6B6KeOdBmt7hMnR55M4K3fMLii6EmQY1bK1OlM0qaJ0YACo6uZyKX9iNY5_ZkE43fNtFMQi7bbI82NW7Ia8k_Gm0x8piELw-or5YXka1QJ_MAdJ_5LmfYFu7GshmQvvB6xHXL-1P6hCsQQGZdHCpRn2nYX9SxcjgMYE6jzNbWDhiE06yBymSYdzYooorWsqdQBvG6BzpD4ohuB45iD6Lm0RgF_3x1kz80MsRkVOFwZBMpF8HkypFTcxK9ll")',
+                      width: '100px',
+                      height: '100px',
+                      borderRadius: '50%',
+                      backgroundColor: avatarUrl ? 'transparent' : '#ff6b93',
+                      backgroundImage: avatarUrl ? `url(${avatarUrl})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: '#ff6b93',
                       color: 'white',
-                      fontSize: '24px',
-                      fontWeight: 'bold'
+                      fontSize: '32px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      border: '3px solid #fff',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                     }}
                   >
-                    {!user.name ? '' : user.name.charAt(0).toUpperCase()}
+                    {!avatarUrl && (user.name ? user.name.charAt(0).toUpperCase() : '')}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '0',
+                      right: '0',
+                      backgroundColor: '#ff6b93',
+                      borderRadius: '50%',
+                      width: '28px',
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid white',
+                      fontSize: '14px'
+                    }}>
+                      📷
+                    </div>
                   </div>
-                  <div className="profile-info">
-                    <p className="profile-name">{user.name}</p>
-                    <p className="profile-email">{user.email}</p>
-                    <p className="profile-edit-link">Editar</p>
-                  </div>
+                  <p style={{ marginTop: '8px', fontSize: '12px', color: '#9a4c66' }}>
+                    Clique para alterar a foto
+                  </p>
                 </div>
 
-                {/* Menu Items */}
+                {/* Menu Item */}
                 <div className="profile-menu-item">
                   <div className="profile-menu-icon">
                     <UserIcon />
@@ -134,6 +188,31 @@ const Profile = () => {
                     className="form-input"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group" style={{ maxWidth: '100%' }}>
+                  <label className="form-label">CPF</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={cpf}
+                    disabled
+                    style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#6b7280' }}
+                  />
+                  <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
+                    O CPF não pode ser alterado
+                  </p>
+                </div>
+
+                <div className="form-group" style={{ maxWidth: '100%' }}>
+                  <label className="form-label">Telefone</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="(00) 00000-0000"
                   />
                 </div>
 

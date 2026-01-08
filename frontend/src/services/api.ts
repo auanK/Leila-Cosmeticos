@@ -150,6 +150,27 @@ class ApiService {
   async getRelatedProducts(productId: number) {
     return this.request<Product[]>(`/products/${productId}/related`);
   }
+
+  // Checkout methods
+  async checkoutCart(addressId: number) {
+    return this.request<CheckoutResponse>('/checkout', {
+      method: 'POST',
+      body: { addressId },
+    });
+  }
+
+  async checkoutBuyNow(addressId: number, productId: number, quantity: number) {
+    return this.request<CheckoutResponse>('/checkout', {
+      method: 'POST',
+      body: { addressId, productId, quantity },
+    });
+  }
+}
+
+export interface CheckoutResponse {
+  message: string;
+  orderId: number;
+  date: string;
 }
 
 export interface User {
