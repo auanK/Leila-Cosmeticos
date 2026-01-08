@@ -1,9 +1,10 @@
 /* Grid de produtos */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 220px));
+  gap: 16px;
   padding: 16px;
+  justify-content: start;
 }
 
 .product-card {
@@ -12,6 +13,7 @@
   gap: 12px;
   padding-bottom: 12px;
   cursor: pointer;
+  max-width: 220px;
 }
 
 .product-card:hover .product-image {

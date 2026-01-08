@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogoIcon, SearchIcon, HeartIcon, ShoppingBagIcon } from './Icons';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,6 +9,21 @@ interface HeaderProps {
 
 const Header = ({ showNav = true }: HeaderProps) => {
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/produtos?busca=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
+  };
 
   return (
     <header className="header">
@@ -21,27 +37,30 @@ const Header = ({ showNav = true }: HeaderProps) => {
         {showNav && (
           <nav className="header-nav">
             <Link to="/produtos" className="header-nav-link">Novidades</Link>
-            <Link to="/produtos" className="header-nav-link">Maquiagem</Link>
-            <Link to="/" className="header-nav-link">Skincare</Link>
-            <Link to="/produtos" className="header-nav-link">Cabelo</Link>
-            <Link to="/produtos" className="header-nav-link">Perfumes</Link>
-            <Link to="/produtos" className="header-nav-link">Promoções</Link>
+            <Link to="/produtos?categoria=maquiagem" className="header-nav-link">Maquiagem</Link>
+            <Link to="/produtos?categoria=skincare" className="header-nav-link">Skincare</Link>
+            <Link to="/produtos?categoria=cabelo" className="header-nav-link">Cabelo</Link>
+            <Link to="/produtos?categoria=perfumes" className="header-nav-link">Perfumes</Link>
+            <Link to="/produtos?categoria=promocoes" className="header-nav-link">Promoções</Link>
           </nav>
         )}
       </div>
       <div className="header-right">
-        <label className="header-search">
+        <form className="header-search" onSubmit={handleSearch}>
           <div className="header-search-container">
             <div className="header-search-icon">
               <SearchIcon />
             </div>
             <input
               type="text"
-              placeholder="Buscar"
+              placeholder="Buscar produtos..."
               className="header-search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
-        </label>
+        </form>
         <div className="header-actions">
           <Link to="/favoritos" className="header-action-btn">
             <HeartIcon />

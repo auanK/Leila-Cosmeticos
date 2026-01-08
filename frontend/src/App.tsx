@@ -22,7 +22,7 @@ function App() {
         {/* Loja */}
         <Route path="/" element={<Home />} />
         <Route path="/produtos" element={<ProductListing />} />
-        <Route path="/produto" element={<ProductDetail />} />
+        <Route path="/produto/:id" element={<ProductDetail />} />
         <Route path="/carrinho" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         
