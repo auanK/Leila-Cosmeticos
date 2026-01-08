@@ -19,3 +19,33 @@ export const createUser = async (userData) => {
     const result = await pool.query(query, values);
     return result.rows[0];
 };
+
+export const findById = async (id) => {
+    const query = 'SELECT id, name, email, cpf, phone, is_admin, created_at FROM users WHERE id = $1';
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
+};
+
+export const update = async (userId, data) => {
+    const query = `
+        UPDATE users
+        SET 
+            name = COALESCE($1, name),
+            email = COALESCE($2, email),
+            phone = COALESCE($3, phone),
+            password_hash = COALESCE($4, password_hash)
+        WHERE id = $5
+        RETURNING id, name, email, phone, cpf, is_admin;
+    `;
+
+    const values = [
+        data.name || null,
+        data.email || null,
+        data.phone || null,
+        data.passwordHash || null,
+        userId
+    ];
+
+    const result = await pool.query(query, values);
+    return result.rows[0];
+};

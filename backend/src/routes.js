@@ -7,6 +7,7 @@ import * as addressController from './controllers/addressController.js';
 import * as checkoutController from './controllers/checkoutController.js';
 import * as orderController from './controllers/orderController.js';
 import * as wishlistController from './controllers/wishlistController.js';
+import * as userController from './controllers/userController.js';
 
 import { verifyToken, requireAdmin } from './middlewares/authMiddleware.js';
 
@@ -23,12 +24,8 @@ router.get('/categories', categoryController.list);
 router.get('/products', productController.list);
 router.get('/products/:id/related', productController.listRelated);
 
-router.get('/users/me', verifyToken, (req, res) => {
-    res.json({
-        message: "Você está autenticado!",
-        userData: req.user
-    });
-});
+router.get('/users/me', verifyToken, userController.getMe);
+router.put('/users/me', verifyToken, userController.update);
 
 router.post('/categories', verifyToken, requireAdmin, categoryController.create);
 router.post('/products', verifyToken, requireAdmin, productController.create);
