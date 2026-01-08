@@ -120,6 +120,36 @@ class ApiService {
       body: { quantity },
     });
   }
+
+  // Address methods
+  async getAddresses() {
+    return this.request<Address[]>('/addresses');
+  }
+
+  async createAddress(addressData: CreateAddressData) {
+    return this.request<Address>('/addresses', {
+      method: 'POST',
+      body: addressData,
+    });
+  }
+
+  async updateAddress(id: number, addressData: Partial<CreateAddressData>) {
+    return this.request<Address>(`/addresses/${id}`, {
+      method: 'PUT',
+      body: addressData,
+    });
+  }
+
+  async deleteAddress(id: number) {
+    return this.request<{ message: string }>(`/addresses/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Related products
+  async getRelatedProducts(productId: number) {
+    return this.request<Product[]>(`/products/${productId}/related`);
+  }
 }
 
 export interface User {
@@ -210,6 +240,32 @@ export interface Cart {
   items: CartItem[];
   total: number;
   isValid: boolean;
+}
+
+export interface Address {
+  id: number;
+  user_id: number;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  is_main: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateAddressData {
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  is_main?: boolean;
 }
 
 export interface AuthResponse {
