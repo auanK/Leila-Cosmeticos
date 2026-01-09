@@ -231,7 +231,8 @@ const ProductDetail = () => {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
               }}>
                 {/* Thumbnails */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '450px', overflowY: 'auto' }}>
+                  {/* Main Image Thumbnail */}
                   <div
                     onClick={() => setSelectedImage(product.main_image || PLACEHOLDER_IMAGE)}
                     style={{
@@ -242,9 +243,28 @@ const ProductDetail = () => {
                       backgroundImage: `url("${product.main_image || PLACEHOLDER_IMAGE}")`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      flexShrink: 0
                     }}
                   />
+                  {/* Gallery Thumbnails */}
+                  {product.gallery && product.gallery.length > 0 && product.gallery.map((img) => (
+                    <div
+                      key={img.id}
+                      onClick={() => setSelectedImage(img.url)}
+                      style={{
+                        width: '70px',
+                        height: '70px',
+                        borderRadius: '8px',
+                        border: selectedImage === img.url ? '2px solid #be185d' : '2px solid #e7cfd7',
+                        backgroundImage: `url("${img.url}")`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    />
+                  ))}
                 </div>
 
                 {/* Main Image */}
