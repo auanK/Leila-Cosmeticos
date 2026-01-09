@@ -6,6 +6,7 @@ import { useCart } from '../hooks/useCart';
 
 interface HeaderProps {
   showNav?: boolean;
+  showSearch?: boolean;
 }
 
 const Header = ({ showNav = true }: HeaderProps) => {
