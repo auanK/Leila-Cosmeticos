@@ -117,6 +117,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+  margin-right: -40px;
+  padding-right: 80px;
 }
 
 .search-box {
@@ -164,6 +166,55 @@ body {
   background-position: center;
   border: 2px solid var(--primary);
 }
+
+
+/* --- Estilos Específicos para AdminClientes --- */
+
+/* Filtros em Grid (específico para esta página que tem 4 colunas) */
+.filter-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto; /* Busca maior, selects menores, botão auto */
+  gap: 16px;
+  width: 100%;
+}
+
+/* Badges de Status do Cliente */
+.badge-ativo {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-inativo {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Ajuste fino para os botões de ação */
+.action-btn-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-action-view { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.btn-action-edit { color: #f97316; background: rgba(249, 115, 22, 0.1); }
+.btn-action-delete { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+.btn-sm-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-sm-icon:hover { opacity: 0.8; }
+
+
 
 /* Page Content */
 .content-padding {
@@ -520,6 +571,69 @@ td {
 
 .page-btn:hover:not(.active):not(:disabled) {
   background: var(--bg-surface);
+}
+
+
+
+/* --- Estilos Específicos para AdminPedidos --- */
+
+/* Abas de Navegação */
+.tabs-nav {
+  display: flex;
+  gap: 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  padding: 0 32px;
+}
+
+.tab-link {
+  padding-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-link:hover {
+  color: var(--primary);
+}
+
+.tab-link.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Badges de Status de Pedido */
+.badge-status {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.status-pendente { background: #fef9c3; color: #a16207; }
+.status-pago { background: #dbeafe; color: #1d4ed8; }
+.status-entregue { background: #dcfce7; color: #15803d; }
+.status-cancelado { background: #fee2e2; color: #b91c1c; }
+
+/* Tabela de Pedidos */
+.client-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.client-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--border);
 }
 
 
