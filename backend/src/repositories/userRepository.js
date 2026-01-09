@@ -21,7 +21,7 @@ export const createUser = async (userData) => {
 };
 
 export const findById = async (id) => {
-    const query = 'SELECT id, name, email, cpf, phone, is_admin, created_at FROM users WHERE id = $1';
+    const query = 'SELECT id, name, email, cpf, phone, is_admin, profile_image, created_at FROM users WHERE id = $1';
     const result = await pool.query(query, [id]);
     return result.rows[0];
 };
@@ -33,10 +33,10 @@ export const update = async (userId, data) => {
             name = COALESCE($1, name),
             email = COALESCE($2, email),
             phone = COALESCE($3, phone),
-            password_hash = COALESCE($4, password_hash)
+            password_hash = COALESCE($4, password_hash),
             profile_image = COALESCE($5, profile_image)
         WHERE id = $6
-        RETURNING id, name, email, phone, cpf, is_admin;
+        RETURNING id, name, email, phone, cpf, is_admin, profile_image;
     `;
 
     const values = [
@@ -44,6 +44,8 @@ export const update = async (userId, data) => {
         data.email || null,
         data.phone || null,
         data.passwordHash || null,
+        data.profileImage || null,
+
         userId
     ];
 

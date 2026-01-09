@@ -49,6 +49,8 @@ router.get('/wishlist', verifyToken, wishlistController.list);
 router.post('/wishlist', verifyToken, wishlistController.add);
 router.delete('/wishlist/:productId', verifyToken, wishlistController.remove);
 
+router.get('/reviews/me', verifyToken, reviewController.listUserReviews);
+router.get('/reviews/me/products', verifyToken, reviewController.getReviewedProducts);
 router.get('/products/:productId/reviews', reviewController.list);
 router.post('/products/:productId/reviews', verifyToken, reviewController.create);
 
