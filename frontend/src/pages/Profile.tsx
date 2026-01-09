@@ -4,6 +4,9 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { UserIcon, LockIcon, SignOutIcon } from '../components/Icons';
 import { useAuth } from '../contexts/AuthContext';
+import { api } from '../services/api';
+
+const IMGUR_CLIENT_ID = '2595b30a05bc570'; 
 
 const Profile = () => {
   const { user, isAuthenticated, isLoading, logout, updateUser } = useAuth();
@@ -15,7 +18,9 @@ const Profile = () => {
   const [cpf, setCpf] = useState('');
   const [phone, setPhone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -30,6 +35,9 @@ const Profile = () => {
       setEmail(user.email || '');
       setCpf(user.cpf || '');
       setPhone(user.phone || '');
+      if (user.profile_image) {
+        setAvatarUrl(user.profile_image);
+      }
     }
   }, [user]);
 
@@ -40,6 +48,7 @@ const Profile = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarUrl(reader.result as string);
@@ -48,14 +57,62 @@ const Profile = () => {
     }
   };
 
+  const uploadImageToImgur = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error('Falha ao fazer upload da imagem');
+    }
+
+    return data.data.link;
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     setMessage(null);
 
     try {
-      // TODO: Implementar chamada API para update no backend
-      // Por enquanto, só atualiza localmente
-      updateUser({ name, email, phone });
+      let profileImageUrl = avatarUrl;
+
+      if (avatarFile) {
+        setIsUploading(true);
+        try {
+          profileImageUrl = await uploadImageToImgur(avatarFile);
+        } catch {
+          setMessage({ type: 'error', text: 'Erro ao fazer upload da imagem.' });
+          setIsSaving(false);
+          setIsUploading(false);
+          return;
+        }
+        setIsUploading(false);
+      }
+
+      const response = await api.updateProfile({
+        name,
+        email,
+        phone,
+        profile_image: profileImageUrl.startsWith('data:') ? undefined : profileImageUrl,
+      });
+
+      updateUser({ 
+        name, 
+        email, 
+        phone,
+        profile_image: response.user?.profile_image || profileImageUrl
+      });
+      
+      setAvatarFile(null);
       setMessage({ type: 'success', text: 'Dados salvos com sucesso!' });
     } catch {
       setMessage({ type: 'error', text: 'Erro ao salvar dados.' });
@@ -221,9 +278,9 @@ const Profile = () => {
                     className="btn btn-primary btn-block" 
                     style={{ backgroundColor: '#ff6b93' }}
                     onClick={handleSave}
-                    disabled={isSaving}
+                    disabled={isSaving || isUploading}
                   >
-                    {isSaving ? 'Salvando...' : 'Salvar'}
+                    {isUploading ? 'Enviando imagem...' : isSaving ? 'Salvando...' : 'Salvar'}
                   </button>
                 </div>
 

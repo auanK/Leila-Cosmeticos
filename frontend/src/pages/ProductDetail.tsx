@@ -6,6 +6,8 @@ import { api } from '../services/api';
 import type { Product } from '../services/api';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
+import { useWishlist } from '../hooks/useWishlist';
+import { useReviews } from '../hooks/useReviews';
 
 const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/400x400?text=Sem+Imagem';
 
@@ -26,7 +28,10 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { token, isAuthenticated } = useAuth();
+  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlist();
+  const productId = id ? parseInt(id) : 0;
+  const { reviews, loading: reviewsLoading, averageRating, ratingDistribution, submitReview } = useReviews(productId);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -37,6 +42,14 @@ const ProductDetail = () => {
   const [addError, setAddError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string>('');
+  
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const isInWishlist = wishlistItems.some(item => item.id === productId);
+
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -103,8 +116,50 @@ const ProductDetail = () => {
 
     if (!product) return;
 
-    // Navega para checkout com os parâmetros de compra imediata
     navigate(`/checkout?productId=${product.id}&quantity=${quantity}`);
+  };
+
+  const handleWishlistToggle = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setWishlistLoading(true);
+      if (isInWishlist) {
+        await removeFromWishlist(productId);
+      } else {
+        await addToWishlist(productId);
+      }
+    } catch {
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    if (reviewRating === 0) {
+      setReviewError('Selecione uma nota para avaliar');
+      return;
+    }
+
+    try {
+      setReviewSubmitting(true);
+      setReviewError(null);
+      await submitReview(reviewRating, reviewComment);
+      setReviewComment('');
+      setReviewRating(0);
+    } catch (err) {
+      setReviewError(err instanceof Error ? err.message : 'Erro ao enviar avaliação');
+    } finally {
+      setReviewSubmitting(false);
+    }
   };
 
   const hasDiscount = product?.price_from && product?.price_to && Number(product.price_from) > Number(product.price_to);
@@ -208,11 +263,13 @@ const ProductDetail = () => {
                   />
                   {/* Wishlist Button */}
                   <button 
+                    onClick={handleWishlistToggle}
+                    disabled={wishlistLoading}
                     style={{
                       position: 'absolute',
                       top: '12px',
                       right: '12px',
-                      background: 'white',
+                      background: isInWishlist ? '#be185d' : 'white',
                       border: '1px solid #e7cfd7',
                       borderRadius: '50%',
                       width: '40px',
@@ -220,11 +277,14 @@ const ProductDetail = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      cursor: 'pointer',
-                      color: '#9a4c66'
+                      cursor: wishlistLoading ? 'not-allowed' : 'pointer',
+                      color: isInWishlist ? 'white' : '#9a4c66',
+                      transition: 'all 0.2s ease',
+                      opacity: wishlistLoading ? 0.7 : 1
                     }}
+                    title={isInWishlist ? 'Remover da lista de desejos' : 'Adicionar à lista de desejos'}
                   >
-                    <HeartIcon />
+                    <HeartIcon filled={isInWishlist} />
                   </button>
                 </div>
               </div>
@@ -338,6 +398,262 @@ const ProductDetail = () => {
                   <p style={{ color: '#6b7280', fontSize: '13px', marginTop: '16px' }}>
                     Peso: {product.weight_grams}g
                   </p>
+                )}
+              </div>
+
+              {/* Reviews Section */}
+              <div style={{ 
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                padding: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+              }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', marginBottom: '20px' }}>
+                  Avaliações dos Clientes
+                </h2>
+
+                {/* Average Rating Summary */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '32px', 
+                  marginBottom: '24px',
+                  padding: '16px',
+                  backgroundColor: '#fdf2f4',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '48px', fontWeight: '700', color: '#be185d' }}>
+                      {averageRating.toFixed(1)}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span 
+                          key={star} 
+                          style={{ 
+                            color: star <= Math.round(averageRating) ? '#f59e0b' : '#d1d5db',
+                            fontSize: '18px'
+                          }}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#6b7280' }}>
+                      {reviews.length} avaliação{reviews.length !== 1 ? 'ões' : ''}
+                    </p>
+                  </div>
+
+                  {/* Rating Distribution */}
+                  <div style={{ flex: 1 }}>
+                    {[5, 4, 3, 2, 1].map((stars) => {
+                      const count = ratingDistribution[stars] || 0;
+                      const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                      return (
+                        <div key={stars} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '13px', color: '#6b7280', width: '50px' }}>{stars} estrela{stars > 1 ? 's' : ''}</span>
+                          <div style={{ flex: 1, height: '8px', backgroundColor: '#f3e8eb', borderRadius: '4px' }}>
+                            <div style={{ 
+                              width: `${percentage}%`, 
+                              height: '100%', 
+                              backgroundColor: '#be185d',
+                              borderRadius: '4px'
+                            }} />
+                          </div>
+                          <span style={{ fontSize: '12px', color: '#9ca3af', width: '30px' }}>({count})</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Write Review Form */}
+                {token && (
+                  <div style={{ 
+                    marginBottom: '24px', 
+                    padding: '16px', 
+                    border: '1px solid #e7cfd7', 
+                    borderRadius: '8px' 
+                  }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>
+                      Escreva sua avaliação
+                    </h3>
+                    
+                    {/* Star Rating Input */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Sua nota:</p>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewRating(star)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '28px',
+                              color: star <= reviewRating ? '#f59e0b' : '#d1d5db',
+                              padding: '2px',
+                              transition: 'transform 0.1s'
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'}
+                            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Comment Textarea */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <textarea
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                        placeholder="Conte sua experiência com este produto..."
+                        style={{
+                          width: '100%',
+                          minHeight: '80px',
+                          padding: '12px',
+                          border: '1px solid #e7cfd7',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          resize: 'vertical',
+                          fontFamily: 'inherit'
+                        }}
+                      />
+                    </div>
+
+                    {reviewError && (
+                      <p style={{ color: '#dc2626', fontSize: '13px', marginBottom: '12px' }}>{reviewError}</p>
+                    )}
+
+                    <button
+                      onClick={handleSubmitReview}
+                      disabled={reviewSubmitting || reviewRating === 0}
+                      style={{
+                        backgroundColor: reviewRating === 0 ? '#d1d5db' : '#be185d',
+                        color: 'white',
+                        padding: '10px 20px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        cursor: reviewRating === 0 ? 'not-allowed' : 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        opacity: reviewSubmitting ? 0.7 : 1
+                      }}
+                    >
+                      {reviewSubmitting ? 'Enviando...' : 'Enviar Avaliação'}
+                    </button>
+                  </div>
+                )}
+
+                {!token && (
+                  <div style={{ 
+                    marginBottom: '24px', 
+                    padding: '16px', 
+                    backgroundColor: '#fdf2f4', 
+                    borderRadius: '8px',
+                    textAlign: 'center'
+                  }}>
+                    <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>
+                      Faça login para avaliar este produto
+                    </p>
+                    <button
+                      onClick={() => navigate('/login')}
+                      style={{
+                        backgroundColor: '#be185d',
+                        color: 'white',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Fazer Login
+                    </button>
+                  </div>
+                )}
+
+                {/* Reviews List */}
+                {reviewsLoading ? (
+                  <p style={{ textAlign: 'center', color: '#6b7280' }}>Carregando avaliações...</p>
+                ) : reviews.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '24px' }}>
+                    <p style={{ color: '#6b7280', fontSize: '14px' }}>
+                      Este produto ainda não tem avaliações.
+                    </p>
+                    <p style={{ color: '#9ca3af', fontSize: '13px', marginTop: '4px' }}>
+                      Seja o primeiro a avaliar!
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {reviews.map((review) => (
+                      <div 
+                        key={review.id} 
+                        style={{ 
+                          padding: '16px', 
+                          border: '1px solid #f3e8eb', 
+                          borderRadius: '8px' 
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                          <div style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            backgroundColor: '#f3e8eb',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            overflow: 'hidden'
+                          }}>
+                            {review.user_photo ? (
+                              <img 
+                                src={review.user_photo} 
+                                alt={review.user_name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              />
+                            ) : (
+                              <span style={{ fontSize: '18px', color: '#be185d' }}>
+                                {review.user_name?.charAt(0).toUpperCase() || '?'}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <p style={{ fontWeight: '500', color: '#1f2937', fontSize: '14px' }}>
+                              {review.user_name || 'Cliente'}
+                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ display: 'flex' }}>
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <span 
+                                    key={star} 
+                                    style={{ 
+                                      color: star <= review.rating ? '#f59e0b' : '#d1d5db',
+                                      fontSize: '14px'
+                                    }}
+                                  >
+                                    ★
+                                  </span>
+                                ))}
+                              </div>
+                              <span style={{ color: '#9ca3af', fontSize: '12px' }}>
+                                {new Date(review.created_at).toLocaleDateString('pt-BR')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        {review.comment && (
+                          <p style={{ color: '#4b5563', fontSize: '14px', lineHeight: '1.5' }}>
+                            {review.comment}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
@@ -573,22 +889,27 @@ const ProductDetail = () => {
 
                 {/* Wishlist Link */}
                 <button
+                  onClick={handleWishlistToggle}
+                  disabled={wishlistLoading}
                   style={{
                     width: '100%',
                     marginTop: '12px',
                     padding: '10px',
-                    background: 'none',
-                    border: 'none',
-                    color: '#be185d',
+                    background: isInWishlist ? '#fdf2f4' : 'none',
+                    border: isInWishlist ? '1px solid #be185d' : 'none',
+                    borderRadius: '8px',
+                    color: isInWishlist ? '#be185d' : '#6b7280',
                     fontSize: '14px',
-                    cursor: 'pointer',
+                    cursor: wishlistLoading ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '6px'
+                    gap: '6px',
+                    opacity: wishlistLoading ? 0.6 : 1,
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  <HeartIcon /> Adicionar à lista de desejos
+                  <HeartIcon filled={isInWishlist} /> {isInWishlist ? 'Na sua lista de desejos ♥' : 'Adicionar à lista de desejos'}
                 </button>
 
                 {/* Divider */}

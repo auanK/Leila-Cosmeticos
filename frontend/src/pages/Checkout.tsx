@@ -16,9 +16,8 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { addresses, isLoading: addressesLoading } = useAddresses();
-  const { cart, loading: cartLoading, refresh: refreshCart } = useCart();
+  const { cart, loading: cartLoading } = useCart();
 
-  // Verifica se é "Comprar agora" (tem productId e quantity) ou checkout do carrinho
   const productId = searchParams.get('productId');
   const quantity = searchParams.get('quantity');
   const isBuyNow = productId && quantity;
@@ -30,7 +29,6 @@ const Checkout = () => {
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
 
-  // Para "Comprar agora", busca os dados do produto
   const [buyNowProduct, setBuyNowProduct] = useState<Product | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(false);
 
@@ -42,7 +40,6 @@ const Checkout = () => {
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddressId) {
-      // Seleciona o endereço principal ou o primeiro
       const mainAddress = addresses.find(a => a.is_main);
       setSelectedAddressId(mainAddress?.id || addresses[0].id);
     }
@@ -76,12 +73,9 @@ const Checkout = () => {
 
       let response;
       if (isBuyNow && productId && quantity) {
-        // Checkout "Comprar agora"
         response = await api.checkoutBuyNow(selectedAddressId, parseInt(productId), parseInt(quantity));
       } else {
-        // Checkout do carrinho
         response = await api.checkoutCart(selectedAddressId);
-        refreshCart(); // Atualiza o carrinho (agora vazio)
       }
 
       setOrderId(response.orderId);
@@ -93,7 +87,6 @@ const Checkout = () => {
     }
   };
 
-  // Calcular total
   const getTotal = () => {
     if (isBuyNow && buyNowProduct) {
       const price = Number(buyNowProduct.price_to) || Number(buyNowProduct.price_from) || 0;
@@ -126,7 +119,6 @@ const Checkout = () => {
     return null;
   }
 
-  // Tela de sucesso
   if (success) {
     return (
       <div className="page-container" style={{ backgroundColor: '#fbf8f9' }}>
@@ -167,7 +159,6 @@ const Checkout = () => {
     );
   }
 
-  // Verificar se tem itens para checkout
   const hasItems = isBuyNow ? buyNowProduct !== null : (cart?.items.length || 0) > 0;
 
   if (!hasItems) {

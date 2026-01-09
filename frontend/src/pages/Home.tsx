@@ -11,7 +11,6 @@ const Home = () => {
   const { categories, isLoading: categoriesLoading } = useCategories();
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
 
-  // Filtrar produtos pela categoria selecionada
   const filteredProducts = useMemo(() => {
     if (categories.length === 0) return products;
     
