@@ -295,6 +295,11 @@ export interface RegisterData {
   phone?: string;
 }
 
+export interface ProductImage {
+  id: number;
+  url: string;
+}
+
 export interface Product {
   id: number;
   category_id?: number;
@@ -310,6 +315,7 @@ export interface Product {
   weight_grams?: number;
   is_active?: boolean;
   main_image?: string;
+  gallery?: ProductImage[];
   created_at?: string;
   updated_at?: string;
 }
