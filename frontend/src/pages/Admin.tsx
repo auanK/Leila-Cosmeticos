@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import AdminSidebar from '../components/AdminSidebar';
+import AdminHeader from '../components/AdminHeader';
+import AdminTable from '../components/AdminTable';
 import '../styles/pages/admin.css';
 
 interface Product {
@@ -99,29 +101,7 @@ const Admin = () => {
       {/* Conteúdo Principal */}
       <main className="main-content">
         
-        {/* Top Header */}
-        <header className="top-header">
-          <div className="search-box">
-            <span className="material-symbols-outlined search-icon">search</span>
-            <input type="text" placeholder="Buscar produtos, pedidos..." />
-          </div>
-          
-          <div className="header-actions">
-            <button className="btn btn-icon">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-            <div className="user-profile">
-              <div style={{textAlign: 'right'}}>
-                <p style={{fontWeight: 'bold', margin: 0, fontSize: '14px'}}>Leila Souza</p>
-                <p style={{color: 'var(--text-muted)', margin: 0, fontSize: '10px'}}>Administradora</p>
-              </div>
-              <div 
-                className="avatar" 
-                style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDEqI2geNVfiSWkVsgwXgt9RqnLZmla7AMT_lq1UAamW-TSMCJESlmr-NsilHqBh_Jtcdn3OI6qFms_bU1B9lgt2RTtV1w8FDvUMexNIQOGQ25qZntL706QEodWilON9q63h3G3a-MmVeexk3lVyjufgQJU40wD0oia1Hysp6G0pLodM_sDnwOI1VgKvoyd0CxZlnR48Scsfm1IsTwvqAkrtdmoRYZmx12OYVCniEa_7krsU3euq3JKldsvgkyfC-4fEQiqO1uIm5Y')"}}
-              ></div>
-            </div>
-          </div>
-        </header>
+        <AdminHeader searchPlaceholder="Buscar produtos, pedidos..." align="right" />
 
         {/* Conteúdo da Página */}
         <div className="content-padding">
@@ -151,71 +131,79 @@ const Admin = () => {
           </div>
 
           {/* Tabela de Produtos */}
-          <div className="table-container">
-            <div className="table-header">
-              <h3 style={{margin: 0, fontSize: '18px'}}>Gestão de Produtos</h3>
-              <div style={{display: 'flex', gap: '12px'}}>
-                <button className="btn btn-outline">Filtrar</button>
-                <button className="btn btn-outline">Exportar</button>
-                <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-                  <span className="material-symbols-outlined">add</span>
-                  Adicionar Produto
+          <AdminTable
+            title="Gestão de Produtos"
+            data={products}
+            filteredData={products}
+            columns={[
+              {
+                key: 'name',
+                label: 'Produto',
+                render: (value, row) => (
+                  <div className="product-info">
+                    <div 
+                      className="product-img" 
+                      style={{backgroundImage: `url('${row.main_image || 'https://via.placeholder.com/48'}')`}}
+                    ></div>
+                    <div>
+                      <p style={{fontWeight: 'bold', margin: 0, fontSize: '14px'}}>{value}</p>
+                      <p style={{color: 'var(--text-muted)', margin: 0, fontSize: '12px'}}>SKU: {row.id}</p>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                key: 'category_names',
+                label: 'Categoria',
+                render: (value) => (
+                  <span className="tag tag-makeup">{value?.[0] || 'Sem categoria'}</span>
+                )
+              },
+              {
+                key: 'price_to',
+                label: 'Preço',
+                render: (value, row) => (
+                  <span style={{fontWeight: '600'}}>R$ {(value || row.price_from || 0).toFixed(2)}</span>
+                )
+              },
+              {
+                key: 'current_stock',
+                label: 'Estoque',
+                render: (value) => (
+                  <span style={{color: (value || 0) < 5 ? '#ef4444' : 'inherit', fontWeight: (value || 0) < 5 ? 'bold' : 'normal'}}>
+                    {value || 0} un
+                  </span>
+                )
+              },
+              {
+                key: 'current_stock',
+                label: 'Status',
+                render: (value) => (
+                  <div className={`status-dot ${(value || 0) < 5 ? 'status-low' : 'status-active'}`}>
+                    <span className="dot"></span>
+                    {(value || 0) < 5 ? 'Baixo Estoque' : 'Ativo'}
+                  </div>
+                )
+              }
+            ]}
+            isLoading={isLoading}
+            emptyMessage="Nenhum produto cadastrado"
+            countLabel="Produtos"
+            onAdd={() => setIsModalOpen(true)}
+            addButtonLabel="Novo Produto"
+            addButtonIcon="add"
+            showSortButton={true}
+            actions={(row) => (
+              <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
+                <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)'}}>
+                  <span className="material-symbols-outlined">edit</span>
+                </button>
+                <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444'}}>
+                  <span className="material-symbols-outlined">delete</span>
                 </button>
               </div>
-            </div>
-            
-            <table>
-              <thead>
-                <tr>
-                  <th>Produto</th>
-                  <th>Categoria</th>
-                  <th>Preço</th>
-                  <th>Estoque</th>
-                  <th>Status</th>
-                  <th style={{textAlign: 'right'}}>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id}>
-                    <td>
-                      <div className="product-info">
-                        <div 
-                          className="product-img" 
-                          style={{backgroundImage: `url('${product.main_image || 'https://via.placeholder.com/48'}')`}}
-                        ></div>
-                        <div>
-                          <p style={{fontWeight: 'bold', margin: 0, fontSize: '14px'}}>{product.name}</p>
-                          <p style={{color: 'var(--text-muted)', margin: 0, fontSize: '12px'}}>SKU: {product.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="tag tag-makeup">{product.category_names?.[0] || 'Sem categoria'}</span>
-                    </td>
-                    <td style={{fontWeight: '600'}}>R$ {(product.price_to || product.price_from || 0).toFixed(2)}</td>
-                    <td style={{color: (product.current_stock || 0) < 5 ? '#ef4444' : 'inherit', fontWeight: (product.current_stock || 0) < 5 ? 'bold' : 'normal'}}>
-                      {product.current_stock || 0} un
-                    </td>
-                    <td>
-                      <div className={`status-dot ${(product.current_stock || 0) < 5 ? 'status-low' : 'status-active'}`}>
-                        <span className="dot"></span>
-                        {(product.current_stock || 0) < 5 ? 'Baixo Estoque' : 'Ativo'}
-                      </div>
-                    </td>
-                    <td style={{textAlign: 'right'}}>
-                      <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)'}}>
-                        <span className="material-symbols-outlined">edit</span>
-                      </button>
-                      <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444'}}>
-                        <span className="material-symbols-outlined">delete</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            )}
+          />
 
         </div>
       </main>

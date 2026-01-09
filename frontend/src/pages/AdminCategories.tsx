@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
+import AdminHeader from '../components/AdminHeader';
+import AdminTable from '../components/AdminTable';
 import { api } from '../services/api';
 import '../styles/pages/admin.css';
 
@@ -15,6 +17,8 @@ const Categories = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [newCategory, setNewCategory] = useState({
     name: '',
     description: ''
@@ -35,6 +39,16 @@ const Categories = () => {
       setIsLoading(false);
     }
   };
+
+  const filteredCategories = categories.filter((cat) => {
+    const term = searchTerm.toLowerCase();
+    const matchesTerm =
+      cat.name.toLowerCase().includes(term) ||
+      (cat.description || '').toLowerCase().includes(term) ||
+      String(cat.id).includes(term);
+    const matchesCategory = !categoryFilter || cat.name === categoryFilter;
+    return matchesTerm && matchesCategory;
+  });
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,22 +77,8 @@ const Categories = () => {
 
       {/* Conteúdo Principal */}
       <main className="main-content">
-        <header className="top-header">
-          <div className="search-box">
-            <span className="material-symbols-outlined search-icon">search</span>
-            <input type="text" placeholder="Buscar categorias..." />
-          </div>
-          <div className="header-actions">
-            <button className="btn btn-icon"><span className="material-symbols-outlined">notifications</span></button>
-            <div className="user-profile">
-              <div style={{textAlign: 'right'}}>
-                <p style={{fontWeight: 'bold', margin: 0, fontSize: '14px'}}>Leila Souza</p>
-                <p style={{color: 'var(--text-muted)', margin: 0, fontSize: '10px'}}>Administradora</p>
-              </div>
-              <div className="avatar" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDEqI2geNVfiSWkVsgwXgt9RqnLZmla7AMT_lq1UAamW-TSMCJESlmr-NsilHqBh_Jtcdn3OI6qFms_bU1B9lgt2RTtV1w8FDvUMexNIQOGQ25qZntL706QEodWilON9q63h3G3a-MmVeexk3lVyjufgQJU40wD0oia1Hysp6G0pLodM_sDnwOI1VgKvoyd0CxZlnR48Scsfm1IsTwvqAkrtdmoRYZmx12OYVCniEa_7krsU3euq3JKldsvgkyfC-4fEQiqO1uIm5Y')"}}></div>
-            </div>
-          </div>
-        </header>
+        <AdminHeader align="right" />
+        
 
         <div className="content-padding">
           <div className="page-header">
@@ -88,81 +88,99 @@ const Categories = () => {
             </div>
           </div>
 
-          <div className="table-container categories-table">
-            <div className="table-header">
-              <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-                <h3 style={{margin: 0, fontSize: '18px'}}>Lista de Categorias</h3>
-                <span className="tag" style={{background: 'var(--bg-body)', color: 'var(--text-muted)'}}>{categories.length} Categorias</span>
-              </div>
-              <div style={{display: 'flex', gap: '12px'}}>
-                <button className="btn btn-outline">
-                  <span className="material-symbols-outlined" style={{fontSize: '18px'}}>sort</span> Ordenar
-                </button>
-                <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-                  <span className="material-symbols-outlined">add_circle</span>
-                  Nova Categoria
-                </button>
+<section className="filter-section">
+          <div className="filter-card">
+            <div className="input-group" style={{flex: 1}}>
+              <label className="input-label">Busca</label>
+              <div className="search-box">
+                <span className="material-symbols-outlined search-icon">search</span>
+                <input 
+                  type="text" 
+                  placeholder="Buscar categoria" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </div>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nome da Categoria</th>
-                  <th>Descrição</th>
-                  <th>Data de Criação</th>
-                  <th style={{textAlign: 'right'}}>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={5} style={{textAlign: 'center', padding: '40px'}}>
-                      Carregando...
-                    </td>
-                  </tr>
-                ) : categories.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} style={{textAlign: 'center', padding: '40px', color: 'var(--text-muted)'}}>
-                      Nenhuma categoria cadastrada
-                    </td>
-                  </tr>
-                ) : (
-                  categories.map((cat) => (
-                    <tr key={cat.id}>
-                      <td>
-                        <span style={{fontWeight: 'bold'}}>#{cat.id}</span>
-                      </td>
-                      <td>
-                        <p style={{fontWeight: 'bold', margin: 0, fontSize: '14px'}}>{cat.name}</p>
-                      </td>
-                      <td>
-                        <p style={{color: 'var(--text-muted)', margin: 0, fontSize: '12px'}}>{cat.description || 'Sem descrição'}</p>
-                      </td>
-                      <td style={{fontSize: '14px'}}>
-                        {cat.created_at ? new Date(cat.created_at).toLocaleDateString('pt-BR') : '-'}
-                      </td>
-                      <td style={{textAlign: 'right'}}>
-                        <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
-                          <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)'}}>
-                            <span className="material-symbols-outlined">edit</span>
-                          </button>
-                          <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444'}}>
-                            <span className="material-symbols-outlined">delete</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-            
-            <div className="nav-footer" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)'}}>
-                <p>Exibindo {categories.length} categori{categories.length === 1 ? 'a' : 'as'}</p>
+            <div className="input-group" style={{width: '250px'}}>
+              <label className="input-label">Categoria</label>
+              <select 
+                className="form-input"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="">Todas as Categorias</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))}
+              </select>
             </div>
+            <button className="btn" style={{background: 'var(--bg-body)', height: '44px'}}>
+              <span className="material-symbols-outlined">filter_list</span>
+              Filtros Avançados
+            </button>
           </div>
+        </section>
+
+          <AdminTable
+            title="Lista de Categorias"
+            data={categories}
+            filteredData={filteredCategories}
+            columns={[
+              {
+                key: 'id',
+                label: 'ID',
+                render: (value) => <span style={{ fontWeight: 'bold' }}>#{value}</span>
+              },
+              {
+                key: 'name',
+                label: 'Nome da Categoria',
+                render: (value) => <p style={{ fontWeight: 'bold', margin: 0, fontSize: '14px' }}>{value}</p>
+              },
+              {
+                key: 'description',
+                label: 'Descrição',
+                render: (value) => (
+                  <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '12px' }}>
+                    {value || 'Sem descrição'}
+                  </p>
+                )
+              },
+              {
+                key: 'created_at',
+                label: 'Data de Criação',
+                render: (value) => (
+                  <span style={{ fontSize: '14px' }}>
+                    {value ? new Date(value).toLocaleDateString('pt-BR') : '-'}
+                  </span>
+                )
+              }
+            ]}
+            isLoading={isLoading}
+            emptyMessage="Nenhuma categoria cadastrada"
+            emptyFilteredMessage="Nenhuma categoria encontrada"
+            countLabel="Categorias"
+            onAdd={() => setIsModalOpen(true)}
+            addButtonLabel="Nova Categoria"
+            addButtonIcon="add_circle"
+            actions={(row) => (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button
+                  className="btn-icon"
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }}
+                >
+                  <span className="material-symbols-outlined">edit</span>
+                </button>
+                <button
+                  className="btn-icon"
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444' }}
+                >
+                  <span className="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            )}
+            className="categories-table"
+          />
         </div>
       </main>
 
