@@ -8,6 +8,7 @@ import * as checkoutController from './controllers/checkoutController.js';
 import * as orderController from './controllers/orderController.js';
 import * as wishlistController from './controllers/wishlistController.js';
 import * as userController from './controllers/userController.js';
+import * as reviewController from './controllers/reviewController.js';
 
 import { verifyToken, requireAdmin } from './middlewares/authMiddleware.js';
 
@@ -47,5 +48,8 @@ router.get('/orders', verifyToken, orderController.list);
 router.get('/wishlist', verifyToken, wishlistController.list);
 router.post('/wishlist', verifyToken, wishlistController.add);
 router.delete('/wishlist/:productId', verifyToken, wishlistController.remove);
+
+router.get('/products/:productId/reviews', reviewController.list);
+router.post('/products/:productId/reviews', verifyToken, reviewController.create);
 
 export default router;
