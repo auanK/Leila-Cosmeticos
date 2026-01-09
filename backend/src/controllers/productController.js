@@ -14,10 +14,27 @@ export const list = async (req, res) => {
     }
 };
 
+export const getById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await productService.getProductById(id);
+
+        if (!product) {
+            return res.status(404).json({ error: "Produto não encontrado" });
+        }
+
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const create = async (req, res) => {
     try {
         const productData = {
             categoryIds: req.body.category_ids,
+            additionalImages: req.body.additional_images,
+
             name: req.body.name,
             description: req.body.description,
             priceFrom: req.body.price_from,
