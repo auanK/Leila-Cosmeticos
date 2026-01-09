@@ -117,9 +117,6 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  width: calc(100vw - 260px);
-  margin-right: -40px;
-  padding-right: calc(40px + 40px);
 }
 
 .search-box {
@@ -367,6 +364,162 @@ td {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow);
+}
+
+/* --- Estilos Específicos para AdminProdutos --- */
+
+/* Sidebar Updates */
+.sidebar {
+  width: 288px; /* w-72 */
+}
+
+.main-content {
+  margin-left: 288px;
+  width: calc(100% - 288px);
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.breadcrumbs a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+/* Filtros */
+.filter-section {
+  padding: 0 32px 24px 32px;
+}
+
+.filter-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-wrapper .material-symbols-outlined {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.form-input-padded {
+  padding-left: 52px; 
+}
+
+/* Badges e Imagens da Tabela */
+.thumb-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--border);
+}
+
+.badge-pill {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.badge-amber { background: #fef3c7; color: #d97706; }
+.badge-purple { background: #f3e8ff; color: #9333ea; }
+.badge-red { background: #fee2e2; color: #dc2626; }
+
+/* Status de Estoque */
+.stock-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stock-indicator .dot { width: 8px; height: 8px; border-radius: 50%; }
+.stock-ok .dot { background: var(--success); }
+.stock-low { color: #ea580c; }
+.stock-low .dot { background: #ea580c; }
+.stock-out { color: var(--danger); }
+.stock-out .dot { background: var(--danger); }
+
+/* Paginação */
+.pagination-container {
+  padding: 16px;
+  background: #fcf8f9;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.page-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+.page-btn:hover:not(.active):not(:disabled) {
+  background: var(--bg-surface);
 }
 
 

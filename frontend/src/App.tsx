@@ -15,6 +15,7 @@ import Wishlist from './pages/Wishlist';
 import Reviews from './pages/Reviews';
 import Admin from './pages/Admin';
 import AdminCategories from './pages/AdminCategories';
+import AdminProdutos from './pages/AdminProdutos';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         {/* Admin */}
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/categorias" element={<AdminCategories />} />
+        <Route path="/admin/produtos" element={<AdminProdutos />} />
       </Routes>
     </BrowserRouter>
     </AuthProvider>
