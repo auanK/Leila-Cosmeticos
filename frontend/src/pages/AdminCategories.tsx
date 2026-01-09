@@ -102,19 +102,6 @@ const Categories = () => {
                 />
               </div>
             </div>
-            <div className="input-group" style={{width: '250px'}}>
-              <label className="input-label">Categoria</label>
-              <select 
-                className="form-input"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="">Todas as Categorias</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
             <button className="btn" style={{background: 'var(--bg-body)', height: '44px'}}>
               <span className="material-symbols-outlined">filter_list</span>
               Filtros Avançados
@@ -163,7 +150,7 @@ const Categories = () => {
             onAdd={() => setIsModalOpen(true)}
             addButtonLabel="Nova Categoria"
             addButtonIcon="add_circle"
-            actions={(row) => (
+            actions={() => (
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button
                   className="btn-icon"

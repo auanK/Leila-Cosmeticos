@@ -193,7 +193,7 @@ const Admin = () => {
             addButtonLabel="Novo Produto"
             addButtonIcon="add"
             showSortButton={true}
-            actions={(row) => (
+            actions={() => (
               <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
                 <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)'}}>
                   <span className="material-symbols-outlined">edit</span>
