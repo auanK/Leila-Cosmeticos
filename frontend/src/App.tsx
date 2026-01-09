@@ -13,6 +13,7 @@ import Orders from './pages/Orders';
 import Addresses from './pages/Addresses';
 import Wishlist from './pages/Wishlist';
 import Reviews from './pages/Reviews';
+import Admin from './pages/Admin';
 
 function App() {
   return (
@@ -35,6 +36,9 @@ function App() {
         <Route path="/enderecos" element={<Addresses />} />
         <Route path="/favoritos" element={<Wishlist />} />
         <Route path="/avaliacoes" element={<Reviews />} />
+        
+        {/* Admin */}
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
     </AuthProvider>
