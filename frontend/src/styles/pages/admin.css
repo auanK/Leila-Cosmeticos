@@ -273,6 +273,10 @@ body {
   overflow: hidden;
 }
 
+.categories-table {
+  width: 130%;
+}
+
 .table-header {
   padding: 28px 32px;
   border-bottom: 1px solid var(--border);
@@ -359,11 +363,84 @@ td {
 .modal {
   background: var(--bg-surface);
   width: 100%;
-  max-width: 560px;
+  max-width: 720px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow);
 }
+
+
+
+/* Cores de Fundo Específicas para Ícones */
+.bg-pink { background: rgba(255, 107, 147, 0.1); color: #ff6b93; }
+.bg-blue { background: #dbeafe; color: #2563eb; }
+.bg-purple { background: #f3e8ff; color: #9333ea; }
+.bg-orange { background: #ffedd5; color: #ea580c; }
+
+
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-track {
+  width: 100px;
+  height: 6px;
+  background-color: var(--bg-body);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+/* Modal: Seletor de Cores */
+.color-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.color-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.color-circle:hover { transform: scale(1.1); }
+.color-circle.selected { outline: 2px solid var(--text-main); outline-offset: 2px; }
+
+/* Modal: Grid de Ícones */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-body);
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.icon-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.icon-option:hover { background: var(--bg-surface); }
+.icon-option.selected { background: var(--bg-surface); color: var(--primary); border-color: var(--primary); }
 
 .modal-body { padding: 24px; }
 .form-group { margin-bottom: 16px; }

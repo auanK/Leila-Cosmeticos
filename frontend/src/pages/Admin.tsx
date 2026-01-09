@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import AdminSidebar from '../components/AdminSidebar';
 import '../styles/pages/admin.css';
 
 interface Product {
@@ -93,53 +94,7 @@ const Admin = () => {
 
   return (
     <div className="dashboard-container">
-      
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="logo-area">
-          <div className="logo-icon">
-            <span className="material-symbols-outlined">auto_awesome</span>
-          </div>
-          <div>
-            <h1 style={{fontSize: '16px', fontWeight: 'bold', margin: 0}}>Leila Cosméticos</h1>
-            <p style={{fontSize: '12px', color: 'var(--text-muted)', margin: 0}}>Admin Panel</p>
-          </div>
-        </div>
-        
-        <nav className="nav-menu">
-          <a href="#" className="nav-item active">
-            <span className="material-symbols-outlined">dashboard</span>
-            Visão Geral
-          </a>
-          <a href="#" className="nav-item">
-            <span className="material-symbols-outlined">inventory_2</span>
-            Produtos
-          </a>
-          <a href="#" className="nav-item">
-            <span className="material-symbols-outlined">category</span>
-            Categorias
-          </a>
-          <a href="#" className="nav-item">
-            <span className="material-symbols-outlined">shopping_bag</span>
-            Pedidos
-          </a>
-          <a href="#" className="nav-item">
-            <span className="material-symbols-outlined">group</span>
-            Clientes
-          </a>
-        </nav>
-
-        <div className="nav-footer">
-          <a href="#" className="nav-item">
-            <span className="material-symbols-outlined">settings</span>
-            Configurações
-          </a>
-          <a href="#" className="nav-item" style={{color: '#ef4444'}}>
-            <span className="material-symbols-outlined">logout</span>
-            Sair
-          </a>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* Conteúdo Principal */}
       <main className="main-content">
@@ -177,10 +132,6 @@ const Admin = () => {
               <h2 className="page-title">Visão Geral</h2>
               <p className="page-subtitle">Acompanhe o desempenho da sua loja hoje.</p>
             </div>
-            <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-              <span className="material-symbols-outlined">add</span>
-              Adicionar Produto
-            </button>
           </div>
 
           {/* Cards de Estatística */}
@@ -203,9 +154,13 @@ const Admin = () => {
           <div className="table-container">
             <div className="table-header">
               <h3 style={{margin: 0, fontSize: '18px'}}>Gestão de Produtos</h3>
-              <div style={{display: 'flex', gap: '8px'}}>
+              <div style={{display: 'flex', gap: '12px'}}>
                 <button className="btn btn-outline">Filtrar</button>
                 <button className="btn btn-outline">Exportar</button>
+                <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+                  <span className="material-symbols-outlined">add</span>
+                  Adicionar Produto
+                </button>
               </div>
             </div>
             
