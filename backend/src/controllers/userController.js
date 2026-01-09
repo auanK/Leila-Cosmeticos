@@ -17,7 +17,8 @@ export const update = async (req, res) => {
             name: req.body.name,
             email: req.body.email,
             phone: req.body.phone,
-            password: req.body.password
+            password: req.body.password,
+            profileImage: req.body.profile_image
         };
 
         const updatedUser = await userService.updateProfile(userId, data);

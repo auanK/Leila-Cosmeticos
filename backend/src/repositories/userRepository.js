@@ -34,7 +34,8 @@ export const update = async (userId, data) => {
             email = COALESCE($2, email),
             phone = COALESCE($3, phone),
             password_hash = COALESCE($4, password_hash)
-        WHERE id = $5
+            profile_image = COALESCE($5, profile_image)
+        WHERE id = $6
         RETURNING id, name, email, phone, cpf, is_admin;
     `;
 
