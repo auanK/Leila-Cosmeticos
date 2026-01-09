@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogoIcon, SearchIcon, HeartIcon, ShoppingBagIcon } from './Icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../hooks/useCart';
 
 interface HeaderProps {
   showNav?: boolean;
@@ -9,8 +10,11 @@ interface HeaderProps {
 
 const Header = ({ showNav = true }: HeaderProps) => {
   const { user, isAuthenticated } = useAuth();
+  const { items } = useCart();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const uniqueProductsCount = items.length;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +45,7 @@ const Header = ({ showNav = true }: HeaderProps) => {
             <Link to="/produtos?categorias=skincare" className="header-nav-link">Skincare</Link>
             <Link to="/produtos?categorias=cabelos" className="header-nav-link">Cabelos</Link>
             <Link to="/produtos?categorias=perfumes" className="header-nav-link">Perfumes</Link>
-            <Link to="/produtos?categorias=promocoes" className="header-nav-link">Promoções</Link>
+            <Link to="/produtos?promocoes=true" className="header-nav-link">Promoções</Link>
           </nav>
         )}
       </div>
@@ -65,8 +69,28 @@ const Header = ({ showNav = true }: HeaderProps) => {
           <Link to="/favoritos" className="header-action-btn">
             <HeartIcon />
           </Link>
-          <Link to="/carrinho" className="header-action-btn">
+          <Link to="/carrinho" className="header-action-btn" style={{ position: 'relative' }}>
             <ShoppingBagIcon />
+            {uniqueProductsCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-6px',
+                right: '-6px',
+                backgroundColor: '#be185d',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: 600,
+                minWidth: '18px',
+                height: '18px',
+                borderRadius: '9px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0 4px'
+              }}>
+                {uniqueProductsCount > 99 ? '99+' : uniqueProductsCount}
+              </span>
+            )}
           </Link>
         </div>
         {isAuthenticated ? (
@@ -74,7 +98,7 @@ const Header = ({ showNav = true }: HeaderProps) => {
             to="/perfil"
             className="header-avatar"
             style={{
-              backgroundImage: 'none',
+              backgroundImage: user?.profile_image ? `url("${user.profile_image}")` : 'none',
               backgroundColor: '#ff6b93',
               display: 'flex',
               alignItems: 'center',

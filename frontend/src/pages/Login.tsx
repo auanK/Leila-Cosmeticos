@@ -14,6 +14,8 @@ const Login = () => {
   
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
+  const [registerCpf, setRegisterCpf] = useState('');
+  const [registerPhone, setRegisterPhone] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
   
@@ -41,7 +43,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await register(registerName, registerEmail, registerPassword, registerConfirmPassword);
+      await register(registerName, registerEmail, registerPassword, registerConfirmPassword, registerCpf, registerPhone);
       navigate('/perfil');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar conta');
@@ -155,6 +157,28 @@ const Login = () => {
                     placeholder="email@exemplo.com"
                     value={registerEmail}
                     onChange={(e) => setRegisterEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">CPF</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="000.000.000-00"
+                    value={registerCpf}
+                    onChange={(e) => setRegisterCpf(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Telefone</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    placeholder="(00) 00000-0000"
+                    value={registerPhone}
+                    onChange={(e) => setRegisterPhone(e.target.value)}
                     required
                   />
                 </div>

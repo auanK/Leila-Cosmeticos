@@ -9,7 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
+  register: (name: string, email: string, password: string, confirmPassword: string, cpf?: string, phone?: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
 }
@@ -79,12 +79,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     saveToStorage(response.user, response.token);
   };
 
-  const register = async (name: string, email: string, password: string, confirmPassword: string): Promise<void> => {
+  const register = async (name: string, email: string, password: string, confirmPassword: string, cpf?: string, phone?: string): Promise<void> => {
     if (password !== confirmPassword) {
       throw new Error('As senhas não coincidem');
     }
 
-    await api.register({ name, email, password });
+    await api.register({ name, email, password, cpf, phone });
     
     await login(email, password);
   };

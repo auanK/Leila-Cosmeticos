@@ -6,13 +6,6 @@ import { useCategories } from '../hooks/useCategories';
 
 const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/300x300?text=Sem+Imagem';
 
-const formatPrice = (priceFrom?: number | string, priceTo?: number | string) => {
-  const pFrom = Number(priceFrom);
-  const pTo = Number(priceTo);
-  const price = pTo || pFrom || 0;
-  return `R$ ${price.toFixed(2).replace('.', ',')}`;
-};
-
 const ProductListing = () => {
   const { products, isLoading, error } = useProducts();
   const { categories } = useCategories();
@@ -25,20 +18,29 @@ const ProductListing = () => {
   const sortOrder = searchParams.get('ordenar') || 'relevancia';
   const minPrice = searchParams.get('precoMin') ? Number(searchParams.get('precoMin')) : undefined;
   const maxPrice = searchParams.get('precoMax') ? Number(searchParams.get('precoMax')) : undefined;
+  const showPromotions = searchParams.get('promocoes') === 'true';
 
 
   const mappedProducts = useMemo(() => {
-    return products.map(p => ({
-      id: p.id,
-      title: p.name,
-      price: formatPrice(p.price_from, p.price_to),
-      priceNum: Number(p.price_to) || Number(p.price_from) || 0,
-      img: p.main_image || PLACEHOLDER_IMAGE,
-      categoryIds: p.category_ids || [],
-      categoryNames: p.category_names || [],
-      skinType: p.skin_type,
-      brand: p.brand
-    }));
+    return products.map(p => {
+      const priceFrom = Number(p.price_from) || 0;
+      const priceTo = Number(p.price_to) || 0;
+      const hasDiscount = priceFrom > 0 && priceTo > 0 && priceFrom > priceTo;
+      return {
+        id: p.id,
+        title: p.name,
+        priceFrom,
+        priceTo,
+        priceNum: priceTo || priceFrom,
+        hasDiscount,
+        discountPercent: hasDiscount ? Math.round((1 - priceTo / priceFrom) * 100) : 0,
+        img: p.main_image || PLACEHOLDER_IMAGE,
+        categoryIds: p.category_ids || [],
+        categoryNames: p.category_names || [],
+        skinType: p.skin_type,
+        brand: p.brand
+      };
+    });
   }, [products]);
 
   const availableSkinTypes = useMemo(() => {
@@ -89,6 +91,10 @@ const ProductListing = () => {
 
   const displayProducts = useMemo(() => {
     let filtered = [...mappedProducts];
+
+    if (showPromotions) {
+      filtered = filtered.filter(p => p.hasDiscount);
+    }
 
     if (selectedCategories.length > 0) {
       const categoryIds = selectedCategories
@@ -164,7 +170,7 @@ const ProductListing = () => {
   };
 
   const hasActiveFilters = selectedCategories.length > 0 || selectedSkinTypes.length > 0 || 
-    selectedBrands.length > 0 || minPrice !== undefined || maxPrice !== undefined || searchTerm;
+    selectedBrands.length > 0 || minPrice !== undefined || maxPrice !== undefined || searchTerm || showPromotions;
 
   const [expandedFilters, setExpandedFilters] = useState<{
     categorias: boolean;
@@ -454,13 +460,42 @@ const ProductListing = () => {
               ) : (
                 displayProducts.map((item, i) => (
                   <Link to={`/produto/${item.id || i + 1}`} key={i} className="product-card">
+                    {item.hasDiscount && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        backgroundColor: '#16a34a',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        zIndex: 1
+                      }}>
+                        -{item.discountPercent}%
+                      </div>
+                    )}
                     <div
                       className="product-image"
                       style={{ backgroundImage: `url("${item.img}")` }}
                     />
                     <div className="product-info">
                       <p className="product-title">{item.title}</p>
-                      <p className="product-price">{item.price}</p>
+                      {item.hasDiscount ? (
+                        <div>
+                          <p style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '13px', margin: 0 }}>
+                            R$ {item.priceFrom.toFixed(2).replace('.', ',')}
+                          </p>
+                          <p className="product-price" style={{ margin: 0, color: '#16a34a' }}>
+                            R$ {item.priceTo.toFixed(2).replace('.', ',')}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="product-price">
+                          R$ {item.priceNum.toFixed(2).replace('.', ',')}
+                        </p>
+                      )}
                     </div>
                   </Link>
                 ))

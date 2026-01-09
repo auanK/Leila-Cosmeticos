@@ -150,6 +150,125 @@ class ApiService {
   async getRelatedProducts(productId: number) {
     return this.request<Product[]>(`/products/${productId}/related`);
   }
+
+  // Checkout methods
+  async checkoutCart(addressId: number) {
+    return this.request<CheckoutResponse>('/checkout', {
+      method: 'POST',
+      body: { addressId },
+    });
+  }
+
+  async checkoutBuyNow(addressId: number, productId: number, quantity: number) {
+    return this.request<CheckoutResponse>('/checkout', {
+      method: 'POST',
+      body: { addressId, productId, quantity },
+    });
+  }
+
+  // Wishlist methods
+  async getWishlist() {
+    return this.request<WishlistItem[]>('/wishlist');
+  }
+
+  async addToWishlist(productId: number) {
+    return this.request<{ message: string }>('/wishlist', {
+      method: 'POST',
+      body: { productId },
+    });
+  }
+
+  async removeFromWishlist(productId: number) {
+    return this.request<{ message: string }>(`/wishlist/${productId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Orders methods
+  async getOrders() {
+    return this.request<Order[]>('/orders');
+  }
+
+  // Reviews methods
+  async getProductReviews(productId: number) {
+    return this.request<Review[]>(`/products/${productId}/reviews`);
+  }
+
+  async createReview(productId: number, rating: number, comment: string) {
+    return this.request<Review>(`/products/${productId}/reviews`, {
+      method: 'POST',
+      body: { rating, comment },
+    });
+  }
+
+  // User reviews
+  async getUserReviews() {
+    return this.request<UserReview[]>('/reviews/me');
+  }
+
+  async getReviewedProductIds() {
+    return this.request<number[]>('/reviews/me/products');
+  }
+
+  // Update profile with image
+  async updateProfile(data: UpdateProfileData) {
+    return this.request<{ message: string; user: User }>('/users/me', {
+      method: 'PUT',
+      body: data,
+    });
+  }
+}
+
+export interface WishlistItem extends Product {
+  added_at: string;
+}
+
+export interface OrderItem {
+  product_id: number;
+  name: string;
+  quantity: number;
+  unit_price: string;
+  image: string;
+}
+
+export interface Order {
+  id: number;
+  total_amount: string;
+  status: string;
+  created_at: string;
+  items: OrderItem[];
+}
+
+export interface Review {
+  id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  user_name: string;
+  user_photo?: string;
+}
+
+export interface UserReview {
+  id: number;
+  product_id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  product_name: string;
+  product_image: string;
+}
+
+export interface UpdateProfileData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  profile_image?: string;
+}
+
+export interface CheckoutResponse {
+  message: string;
+  orderId: number;
+  date: string;
 }
 
 export interface User {
@@ -159,6 +278,7 @@ export interface User {
   cpf?: string;
   phone?: string;
   role?: string;
+  profile_image?: string;
 }
 
 export interface UserData {

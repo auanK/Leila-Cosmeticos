@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import { useProducts } from '../hooks/useProducts';
@@ -5,23 +6,38 @@ import { useCategories } from '../hooks/useCategories';
 
 const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/300x300?text=Sem+Imagem';
 
-const formatPrice = (priceFrom?: number | string, priceTo?: number | string) => {
-  const pFrom = Number(priceFrom);
-  const pTo = Number(priceTo);
-  const price = pTo || pFrom || 0;
-  return `R$ ${price.toFixed(2).replace('.', ',')}`;
-};
-
 const Home = () => {
   const { products, isLoading: productsLoading } = useProducts();
   const { categories, isLoading: categoriesLoading } = useCategories();
+  const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
 
-  const displayProducts = products.slice(0, 4).map(p => ({
-    id: p.id,
-    title: p.name,
-    price: formatPrice(p.price_from, p.price_to),
-    img: p.main_image || PLACEHOLDER_IMAGE
-  }));
+  const filteredProducts = useMemo(() => {
+    if (categories.length === 0) return products;
+    
+    const selectedCategory = categories[selectedCategoryIndex];
+    if (!selectedCategory) return products;
+
+    return products.filter(p => 
+      p.category_ids?.includes(selectedCategory.id) || 
+      p.category_names?.some(name => name.toLowerCase() === selectedCategory.name.toLowerCase())
+    );
+  }, [products, categories, selectedCategoryIndex]);
+
+  const displayProducts = filteredProducts.slice(0, 4).map(p => {
+    const priceFrom = Number(p.price_from) || 0;
+    const priceTo = Number(p.price_to) || 0;
+    const hasDiscount = priceFrom > 0 && priceTo > 0 && priceFrom > priceTo;
+    return {
+      id: p.id,
+      title: p.name,
+      priceFrom,
+      priceTo,
+      priceNum: priceTo || priceFrom,
+      hasDiscount,
+      discountPercent: hasDiscount ? Math.round((1 - priceTo / priceFrom) * 100) : 0,
+      img: p.main_image || PLACEHOLDER_IMAGE
+    };
+  });
 
   const displayCategories = categories.map(c => c.name);
 
@@ -40,13 +56,14 @@ const Home = () => {
                   <span style={{ color: '#6b7280' }}>Nenhuma categoria disponível</span>
                 ) : (
                   displayCategories.map((cat, i) => (
-                    <Link
+                    <button
                       key={i}
-                      to={`/produtos?categorias=${encodeURIComponent(cat.toLowerCase())}`}
-                      className={`tab ${i === 0 ? 'active' : ''}`}
+                      onClick={() => setSelectedCategoryIndex(i)}
+                      className={`tab ${i === selectedCategoryIndex ? 'active' : ''}`}
+                      style={{ cursor: 'pointer' }}
                     >
                       {cat}
-                    </Link>
+                    </button>
                   ))
                 )}
               </div>
@@ -76,14 +93,43 @@ const Home = () => {
                 </p>
               ) : (
                 displayProducts.map((p) => (
-                  <Link to={`/produto/${p.id}`} key={p.id} className="product-card">
+                  <Link to={`/produto/${p.id}`} key={p.id} className="product-card" style={{ position: 'relative' }}>
+                    {p.hasDiscount && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        backgroundColor: '#16a34a',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        zIndex: 1
+                      }}>
+                        -{p.discountPercent}%
+                      </div>
+                    )}
                     <div
                       className="product-image"
                       style={{ backgroundImage: `url("${p.img}")` }}
                     />
                     <div className="product-info">
                       <p className="product-title">{p.title}</p>
-                      <p className="product-price">{p.price}</p>
+                      {p.hasDiscount ? (
+                        <div>
+                          <p style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '13px', margin: 0 }}>
+                            R$ {p.priceFrom.toFixed(2).replace('.', ',')}
+                          </p>
+                          <p className="product-price" style={{ margin: 0, color: '#16a34a' }}>
+                            R$ {p.priceTo.toFixed(2).replace('.', ',')}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="product-price">
+                          R$ {p.priceNum.toFixed(2).replace('.', ',')}
+                        </p>
+                      )}
                     </div>
                   </Link>
                 ))
@@ -91,7 +137,7 @@ const Home = () => {
             </div>
 
             <footer className="footer">
-              <p className="footer-text">@2024 Leila Cosméticos</p>
+              <p className="footer-text">@2026 Leila Cosméticos</p>
             </footer>
           </div>
         </div>
