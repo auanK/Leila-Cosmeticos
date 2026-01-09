@@ -4,6 +4,10 @@ export const getAllProducts = async (filters = {}) => {
     return await productRepository.findAll(filters);
 };
 
+export const getProductById = async (id) => {
+    return await productRepository.findById(id);
+};
+
 export const createProduct = async (data) => {
     if (!data.name || !data.priceTo || !data.mainImage) {
         throw new Error('Nome, preço e imagem principal são obrigatórios');
@@ -11,6 +15,10 @@ export const createProduct = async (data) => {
 
     if (!data.categoryIds || !Array.isArray(data.categoryIds) || data.categoryIds.length === 0) {
         throw new Error('O produto precisa pertencer a pelo menos uma categoria.');
+    }
+
+    if (data.additionalImages && !Array.isArray(data.additionalImages)) {
+        throw new Error('Imagens adicionais devem ser enviadas como uma lista de URLs.');
     }
 
     return await productRepository.create(data);
