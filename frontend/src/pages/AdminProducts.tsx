@@ -4,7 +4,7 @@ import AdminHeader from '../components/AdminHeader';
 import AdminTable from '../components/AdminTable';
 import '../styles/pages/admin.css';
 
-const AdminProdutos = () => {
+const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
 
@@ -73,52 +73,50 @@ const AdminProdutos = () => {
       <AdminSidebar />
 
       <main className="main-content">
-        <AdminHeader searchPlaceholder="Buscar por produto" align="right" />
+        <AdminHeader align="right" />
 
-        <div className="content-padding" style={{paddingBottom: 0}}>
+        <div className="content-padding">
           <div className="page-header">
             <div>
               <h2 className="page-title">Gestão de Produtos</h2>
               <p className="page-subtitle">Gerencie seu catálogo, estoque e categorias em um só lugar.</p>
             </div>
           </div>
-        </div>
 
-        <section className="filter-section">
-          <div className="filter-card">
-            <div className="input-group" style={{flex: 1}}>
-              <label className="input-label">Busca</label>
-              <div className="search-box">
-                <span className="material-symbols-outlined search-icon">search</span>
-                <input 
-                  type="text" 
-                  placeholder="Buscar por produto" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+          <section className="filter-section">
+            <div className="filter-card">
+              <div className="input-group" style={{flex: '1 1 100%'}}>
+                <label className="input-label">Busca</label>
+                <div className="search-box">
+                  <span className="material-symbols-outlined search-icon">search</span>
+                  <input 
+                    type="text" 
+                    placeholder="Buscar por produto" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
+              <div className="input-group" style={{width: '250px'}}>
+                <label className="input-label">Categoria</label>
+                <select 
+                  className="form-input"
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                >
+                  <option value="">Todas as Categorias</option>
+                  <option value="Skincare">Skincare</option>
+                  <option value="Maquiagem">Maquiagem</option>
+                  <option value="Fragrâncias">Fragrâncias</option>
+                </select>
+              </div>
+              <button className="btn" style={{background: 'var(--bg-body)', height: '44px'}}>
+                <span className="material-symbols-outlined">filter_list</span>
+                Filtros Avançados
+              </button>
             </div>
-            <div className="input-group" style={{width: '250px'}}>
-              <label className="input-label">Categoria</label>
-              <select 
-                className="form-input"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="">Todas as Categorias</option>
-                <option value="Skincare">Skincare</option>
-                <option value="Maquiagem">Maquiagem</option>
-                <option value="Fragrâncias">Fragrâncias</option>
-              </select>
-            </div>
-            <button className="btn" style={{background: 'var(--bg-body)', height: '44px'}}>
-              <span className="material-symbols-outlined">filter_list</span>
-              Filtros Avançados
-            </button>
-          </div>
-        </section>
+          </section>
 
-        <section className="content-padding" style={{paddingTop: 0}}>
           <AdminTable
             title="Lista de Produtos"
             data={products}
@@ -183,7 +181,7 @@ const AdminProdutos = () => {
             onAdd={() => console.log('Adicionar produto')}
             addButtonLabel="Novo Produto"
             addButtonIcon="add"
-            actions={(row) => (
+            actions={() => (
               <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
                 <button className="btn-icon" style={{color: 'var(--text-muted)'}}>
                   <span className="material-symbols-outlined">visibility</span>
@@ -197,10 +195,10 @@ const AdminProdutos = () => {
               </div>
             )}
           />
-        </section>
+        </div>
       </main>
     </div>
   );
 };
 
-export default AdminProdutos;
+export default AdminProducts;
