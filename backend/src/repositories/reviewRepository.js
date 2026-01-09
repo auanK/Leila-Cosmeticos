@@ -39,3 +39,28 @@ export const listByProduct = async (productId) => {
     const result = await pool.query(query, [productId]);
     return result.rows;
 };
+
+export const listByUser = async (userId) => {
+    const query = `
+        SELECT 
+            r.id,
+            r.product_id,
+            r.rating, 
+            r.comment, 
+            r.created_at,
+            p.name as product_name,
+            p.main_image as product_image
+        FROM reviews r
+        JOIN products p ON r.product_id = p.id
+        WHERE r.user_id = $1
+        ORDER BY r.created_at DESC
+    `;
+    const result = await pool.query(query, [userId]);
+    return result.rows;
+};
+
+export const getReviewedProductIds = async (userId) => {
+    const query = `SELECT product_id FROM reviews WHERE user_id = $1`;
+    const result = await pool.query(query, [userId]);
+    return result.rows.map(r => r.product_id);
+};

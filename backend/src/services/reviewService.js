@@ -25,3 +25,11 @@ export const addReview = async (userId, productId, rating, comment) => {
 export const getReviews = async (productId) => {
     return await reviewRepository.listByProduct(productId);
 };
+
+export const getUserReviews = async (userId) => {
+    return await reviewRepository.listByUser(userId);
+};
+
+export const getReviewedProductIds = async (userId) => {
+    return await reviewRepository.getReviewedProductIds(userId);
+};
