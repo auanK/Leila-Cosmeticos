@@ -61,7 +61,7 @@ const AdminClients = () => {
       <AdminSidebar />
 
       <main className="main-content">
-        <AdminHeader searchPlaceholder="Buscar por nome ou email..." align="right" showSearch={true} searchValue={searchTerm} onSearchChange={setSearchTerm} />
+        <AdminHeader searchPlaceholder="Buscar por nome ou email..." align="right" showSearch={false} searchValue={searchTerm} onSearchChange={setSearchTerm} />
 
         <div className="content-padding">
           <div className="page-header">
