@@ -217,6 +217,11 @@ class ApiService {
       body: data,
     });
   }
+
+  // Admin - Get all clients
+  async getClients() {
+    return this.request<User[]>('/admin/clients');
+  }
 }
 
 export interface WishlistItem extends Product {
