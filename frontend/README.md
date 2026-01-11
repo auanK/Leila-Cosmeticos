@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# Frontend Leila Cosméticos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend desenvolvido em React com TypeScript para a plataforma de e-commerce **Leila Cosméticos**. O projeto utiliza Vite para desenvolvimento ágil e segue uma arquitetura moderna baseada em componentes funcionais e hooks.
 
-Currently, two official plugins are available:
+**Repositório:** [github.com/auanK/Leila-Cosmeticos](https://github.com/auanK/Leila-Cosmeticos)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tecnologias
 
-## React Compiler
+- **React** (v19) & **Vite**
+- **TypeScript** (Tipagem estática e segurança)
+- **React Router DOM** (Roteamento SPA)
+- **Context API** (Gerenciamento de estado global)
+- **ESLint** (Qualidade de código)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Pré-requisitos
 
-## Expanding the ESLint configuration
+- Node.js (v18+ recomendado)
+- Backend da API rodando localmente (padrão: <http://localhost:3000>)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Instalação e Execução
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Clone o repositório:**
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+  ```bash
+  git clone https://github.com/auanK/Leila-Cosmeticos
+  cd frontend
+  ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Instale as dependências:**
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+  ```bash
+  npm install
+  ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Configuração do Banco de Dados:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Execute a aplicação:**
+  ```bash
+  npm run dev
+  ```
+
+## Estrutura do Projeto
+
+A organização foi pensada para facilitar a manutenção e escalabilidade:
+
+- **src/components/**
+  - Componentes visuais isolados e reutilizáveis (ex: Header, Sidebar, Icons).
+  - _Objetivo:_ Manter a UI modular e evitar repetição de código.
+- **src/pages/**
+  - Páginas principais que correspondem às rotas (ex: Home, ProductListing, Cart).
+  - _Objetivo:_ Separar claramente as visões acessíveis por URL.
+- **src/hooks/**
+  - Lógica de negócios personalizada (ex: useCart, useAddresses).
+  - _Objetivo:_ Abstrair regras de negócio complexas para manter os componentes visuais limpos.
+- **src/contexts/**
+  - Provedores de estado global (ex: AuthContext).
+  - _Objetivo:_ Gerenciar dados compartilhados (sessão do usuário, carrinho) acessíveis em toda a árvore.
+- **src/services/**
+  - Configuração de API e requisições HTTP.
+  - _Objetivo:_ Centralizar a comunicação com o Backend.
+
+## Funcionalidades
+
+- **Loja Virtual:** Catálogo completo, busca inteligente e filtros.
+- **Carrinho e Checkout:** Fluxo de compra fluido e cálculo em tempo real.
+- **Painel do Cliente:** Histórico de pedidos, endereços e wishlist.
+- **Painel Administrativo:** Gestão completa de produtos e categorias.
