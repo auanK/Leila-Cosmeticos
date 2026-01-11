@@ -13,6 +13,11 @@ import Orders from './pages/Orders';
 import Addresses from './pages/Addresses';
 import Wishlist from './pages/Wishlist';
 import Reviews from './pages/Reviews';
+import Admin from './pages/Admin';
+import AdminCategories from './pages/AdminCategories';
+import AdminProducts from './pages/AdminProducts';
+import AdminOrders from './pages/AdminOrders';
+import AdminClients from './pages/AdminClients';
 
 function App() {
   return (
@@ -35,6 +40,14 @@ function App() {
         <Route path="/enderecos" element={<Addresses />} />
         <Route path="/favoritos" element={<Wishlist />} />
         <Route path="/avaliacoes" element={<Reviews />} />
+        
+        {/* Admin */}
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/categorias" element={<AdminCategories />} />
+        <Route path="/admin/produtos" element={<AdminProducts />} />
+        <Route path="/admin/pedidos" element={<AdminOrders />} />
+        <Route path="/admin/clientes" element={<AdminClients />} />
+
       </Routes>
     </BrowserRouter>
     </AuthProvider>
