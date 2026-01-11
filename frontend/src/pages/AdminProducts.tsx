@@ -13,7 +13,6 @@ const AdminProducts = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-<<<<<<< Updated upstream
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -193,50 +192,6 @@ const AdminProducts = () => {
   if (authLoading || !user || !user.isAdmin) {
     return null;
   }
-=======
-
-  const getStockStatus = (stock: number | undefined) => {
-    if (!stock || stock === 0) return { status: 'stock-out', label: 'ESGOTADO', isOut: true };
-    if (stock < 10) return { status: 'stock-low', label: 'BAIXO', isLow: true };
-    return { status: 'stock-ok', label: '' };
-  };
-
-  const getCategoryClass = (categoryName?: string) => {
-    const nameUpper = (categoryName || '').toLowerCase();
-    
-    if (nameUpper.includes('skincare')) return 'tag-skincare';
-    if (nameUpper.includes('maquiagem') || nameUpper.includes('makeup')) return 'badge-pill badge-purple';
-    if (nameUpper.includes('fragr') || nameUpper.includes('parfum')) return 'badge-pill badge-amber';
-    return 'tag-skincare';
-  };
-
-  const transformedProducts = apiProducts.map((product) => {
-    const stockInfo = getStockStatus(product.current_stock);
-    const categoryName = product.category_names?.[0] || 'N/A';
-    const categoryId = product.category_ids?.[0];
-    return {
-      ...product,
-      detail: product.description || product.brand || '',
-      sku: `PROD-${product.id}`,
-      category: categoryName,
-      category_id: categoryId,
-      catClass: getCategoryClass(categoryName),
-      price: product.price_from ? `R$ ${Number(product.price_from).toFixed(2).replace('.', ',')}` : 'N/A',
-      stock: product.current_stock || 0,
-      stockStatus: stockInfo.status,
-      isLow: stockInfo.isLow,
-      isOut: stockInfo.isOut,
-      img: product.main_image || 'https://via.placeholder.com/100'
-    };
-  });
-
-  const filteredProducts = transformedProducts.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || categoryFilter === '' || product.category_id === parseInt(categoryFilter);
-    return matchesSearch && matchesCategory;
-  });
->>>>>>> Stashed changes
 
   return (
     <div className="dashboard-container">
@@ -275,13 +230,8 @@ const AdminProducts = () => {
                   onChange={(e) => setCategoryFilter(e.target.value)}
                 >
                   <option value="">Todas as Categorias</option>
-<<<<<<< Updated upstream
                   {categories.map(cat => (
                     <option key={cat.id} value={cat.name}>{cat.name}</option>
-=======
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>{category.name}</option>
->>>>>>> Stashed changes
                   ))}
                 </select>
               </div>

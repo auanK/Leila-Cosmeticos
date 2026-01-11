@@ -336,12 +336,9 @@ export interface User {
   phone?: string;
   role?: string;
   profile_image?: string;
-<<<<<<< Updated upstream
   isAdmin?: boolean;
-=======
   total_spent?: string;
   last_purchase?: string;
->>>>>>> Stashed changes
 }
 
 export interface UserData {

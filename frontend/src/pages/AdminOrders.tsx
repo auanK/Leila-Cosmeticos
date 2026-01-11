@@ -8,7 +8,6 @@ import type { AdminOrder, AdminOrderDetail } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/admin.css';
 
-<<<<<<< Updated upstream
 const getStatusClass = (status: string) => {
   const statusLower = status.toLowerCase();
   if (statusLower === 'pendente' || statusLower === 'pending') return 'status-pendente';
@@ -19,11 +18,6 @@ const getStatusClass = (status: string) => {
   if (statusLower === 'cancelado' || statusLower === 'cancelled') return 'status-cancelado';
   return 'status-pendente';
 };
-=======
-const AdminOrders = () => {
-  const { orders: apiOrders, loading, error } = useOrders(true);
-  const [searchTerm, setSearchTerm] = useState('');
->>>>>>> Stashed changes
 
 const getStatusLabel = (status: string) => {
   const statusLower = status.toLowerCase();
@@ -74,27 +68,10 @@ const AdminOrders = () => {
     }
   };
 
-<<<<<<< Updated upstream
   useEffect(() => {
     if (!user?.isAdmin) return;
     fetchOrders();
   }, [user?.isAdmin]);
-=======
-  const transformedOrders = apiOrders.map((order) => ({
-    id: `#${order.id}`,
-    client: order.user_name || 'Cliente',
-    email: order.user_email || 'N/A',
-    date: new Date(order.created_at).toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
-    }),
-    total: order.total_amount,
-    status: order.status,
-    statusClass: getStatusClass(order.status),
-    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(order.user_name || 'Cliente')}&background=random`
-  }));
->>>>>>> Stashed changes
 
   const filteredOrders = useMemo(() => {
     const term = searchTerm.toLowerCase();

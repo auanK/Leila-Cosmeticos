@@ -27,7 +27,7 @@ router.get('/products/:id/related', productController.listRelated);
 
 router.get('/users/me', verifyToken, userController.getMe);
 router.put('/users/me', verifyToken, userController.update);
-router.get('/admin/clients', verifyToken, requireAdmin, userController.listClients);
+router.get('/admin/users', verifyToken, requireAdmin, userController.listClients);
 
 router.post('/categories', verifyToken, requireAdmin, categoryController.create);
 router.post('/products', verifyToken, requireAdmin, productController.create);
