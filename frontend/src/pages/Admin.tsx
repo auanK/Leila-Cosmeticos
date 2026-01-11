@@ -95,10 +95,6 @@ const Admin = () => {
     setEditingProduct(null);
   };
 
-  const openCreateModal = () => {
-    resetForm();
-    setIsModalOpen(true);
-  };
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
