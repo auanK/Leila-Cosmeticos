@@ -25,11 +25,26 @@ const AdminClients = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<AdminUser | null>(null);
 
+<<<<<<< Updated upstream
   useEffect(() => {
     if (!authLoading && (!user || !user.isAdmin)) {
       navigate('/');
     }
   }, [user, authLoading, navigate]);
+=======
+  const transformedClients = apiClients.map((client) => ({
+    id: client.id,
+    name: client.name || 'N/A',
+    email: client.email || 'N/A',
+    phone: client.phone || 'N/A',
+    location: 'N/A',
+    total: client.total_spent ? `R$ ${Number(client.total_spent).toFixed(2).replace('.', ',')}` : 'R$ 0,00',
+    lastBuy: client.last_purchase ? new Date(client.last_purchase).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Nunca',
+    status: 'Ativo',
+    statusClass: 'badge-ativo',
+    img: client.profile_image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(client.name || 'Cliente') + '&background=random'
+  }));
+>>>>>>> Stashed changes
 
   useEffect(() => {
     if (!user?.isAdmin) return;

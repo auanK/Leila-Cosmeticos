@@ -282,7 +282,11 @@ const Admin = () => {
               {
                 key: 'status',
                 label: 'Status',
+<<<<<<< Updated upstream
                 render: (_value, row) => (
+=======
+                render: (value, row) => (
+>>>>>>> Stashed changes
                   <div className={`status-dot ${(row.current_stock || 0) < 5 ? 'status-low' : 'status-active'}`}>
                     <span className="dot"></span>
                     {(row.current_stock || 0) < 5 ? 'Baixo Estoque' : 'Ativo'}

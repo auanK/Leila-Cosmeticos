@@ -234,6 +234,11 @@ class ApiService {
     return this.request<Order[]>('/orders');
   }
 
+  // Admin - Get all orders
+  async getAllOrders() {
+    return this.request<Order[]>('/admin/orders');
+  }
+
   // Reviews methods
   async getProductReviews(productId: number) {
     return this.request<Review[]>(`/products/${productId}/reviews`);
@@ -287,6 +292,8 @@ export interface Order {
   status: string;
   created_at: string;
   items: OrderItem[];
+  user_name?: string;
+  user_email?: string;
 }
 
 export interface Review {
@@ -329,7 +336,12 @@ export interface User {
   phone?: string;
   role?: string;
   profile_image?: string;
+<<<<<<< Updated upstream
   isAdmin?: boolean;
+=======
+  total_spent?: string;
+  last_purchase?: string;
+>>>>>>> Stashed changes
 }
 
 export interface UserData {

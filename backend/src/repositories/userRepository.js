@@ -51,3 +51,25 @@ export const update = async (userId, data) => {
     const result = await pool.query(query, values);
     return result.rows[0];
 };
+
+export const findAll = async () => {
+    const query = `
+        SELECT 
+            u.id, 
+            u.name, 
+            u.email, 
+            u.cpf, 
+            u.phone, 
+            u.is_admin, 
+            u.profile_image, 
+            u.created_at,
+            COALESCE(SUM(CASE WHEN o.status IN ('PAGO', 'ENTREGUE') THEN o.total_amount ELSE 0 END), 0) as total_spent,
+            MAX(o.created_at) as last_purchase
+        FROM users u
+        LEFT JOIN orders o ON u.id = o.user_id
+        GROUP BY u.id, u.name, u.email, u.cpf, u.phone, u.is_admin, u.profile_image, u.created_at
+        ORDER BY u.created_at DESC
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+};

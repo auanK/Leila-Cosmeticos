@@ -10,7 +10,7 @@ interface UseOrdersReturn {
   refresh: () => Promise<void>;
 }
 
-export function useOrders(): UseOrdersReturn {
+export function useOrders(adminMode = false): UseOrdersReturn {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export function useOrders(): UseOrdersReturn {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.getOrders();
+      const data = adminMode ? await api.getAllOrders() : await api.getOrders();
       setOrders(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar pedidos');
@@ -34,7 +34,7 @@ export function useOrders(): UseOrdersReturn {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, adminMode]);
 
   useEffect(() => {
     fetchOrders();

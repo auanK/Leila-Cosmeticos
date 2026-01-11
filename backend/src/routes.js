@@ -27,6 +27,7 @@ router.get('/products/:id/related', productController.listRelated);
 
 router.get('/users/me', verifyToken, userController.getMe);
 router.put('/users/me', verifyToken, userController.update);
+router.get('/admin/clients', verifyToken, requireAdmin, userController.listClients);
 
 router.post('/categories', verifyToken, requireAdmin, categoryController.create);
 router.post('/products', verifyToken, requireAdmin, productController.create);
@@ -44,6 +45,7 @@ router.delete('/addresses/:id', verifyToken, addressController.remove);
 router.post('/checkout', verifyToken, checkoutController.checkout);
 
 router.get('/orders', verifyToken, orderController.list);
+router.get('/admin/orders', verifyToken, requireAdmin, orderController.listAll);
 
 router.get('/wishlist', verifyToken, wishlistController.list);
 router.post('/wishlist', verifyToken, wishlistController.add);
