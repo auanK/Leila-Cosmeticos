@@ -2,51 +2,27 @@ import { useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminHeader from '../components/AdminHeader';
 import AdminTable from '../components/AdminTable';
+import { useClients } from '../hooks/useClients';
 import '../styles/pages/admin.css';
 
 const AdminClients = () => {
+  const { clients: apiClients, isLoading, error } = useClients();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const clients = [
-    {
-      id: 1,
-      name: "Ana Silva",
-      email: "ana.silva@email.com",
-      phone: "(11) 98765-4321",
-      location: "São Paulo/SP",
-      total: "R$ 1.250,00",
-      lastBuy: "12 Out 2023",
-      status: "Ativo",
-      statusClass: "badge-ativo",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDLDXMenz1R6JI5g9JfZeMQquJIyHRYQDISquxG4ltmRDpKY8eH12Dad6eQDnNQzVbUFcjV3IGEvDiKBnorUSq0R1uTIckIyQv66N7rIoVQvC_uRVh0_oo6LEP9Gitiam_65BAwt5H6SS3vQEpPeol1Uyg2J5w72aAAr_ws3pkgxyg-VnTJ9j4GRxWNS-hq8fjzM6sDvVYTAfC8SxLf5X1WMAS0Ub_peuw5uLXN56TttutILpReIsXr_CQWvV8soeMSgtFUAxh4viw"
-    },
-    {
-      id: 2,
-      name: "Carlos Santos",
-      email: "carlos.s@email.com",
-      phone: "(21) 97766-5544",
-      location: "Rio de Janeiro/RJ",
-      total: "R$ 450,90",
-      lastBuy: "05 Set 2023",
-      status: "Inativo",
-      statusClass: "badge-inativo",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD11PEpL85JSA_u1Q7bVe2vDBuwFlX-PnUuNgtSnVvnOVDahNhhd3E9h9WIRZRBRpmYA4dtum53_FMjRAJXzPNqKGPMRSaPKikN7pfYiPB_jXLC4BdJNn8EnWg7WFZYNntnBSBNmqA_LaEtVkI6ObNwapMFMGDAIdfVZBA04HFEd86kOuYU_Cwo8kMMxSh4uZVrAeUHOm7DXs_k-1wYmsrEfoBEKw-3cbPTIQ1fZYX74iMs4PrlbXmC2XeGVfDGvi0d2nyNK8cwync"
-    },
-    {
-      id: 3,
-      name: "Mariana Lopes",
-      email: "mari.lopes@email.com",
-      phone: "(31) 98877-6655",
-      location: "Belo Horizonte/MG",
-      total: "R$ 2.340,00",
-      lastBuy: "28 Out 2023",
-      status: "Ativo",
-      statusClass: "badge-ativo",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCyg13ne51azF3yO_FxasCw-wgYx6jP39tUNiIn5mWfhIwRy5XqCpzClS2dbLEnwK-OPVFdfxYsnlsd66Q5hPFlLVZNiBHimuhQD8EL2wSfcHfkv7nyYTdmOUQiu8M_cA5opW4vXLtuOmOQDgjQSwIfalvq8YpmnoTtmvVJSiZrNAwRpIxprj-sy-4k-ZsRKoghvq8Nx6N3ncsHM0FIaYBjgm4kzgWRKHtWOL7P-Lnk8VV0-OnzQOcDeni2stWxtVUJsdYCGZOC7uY"
-    }
-  ];
+  const transformedClients = apiClients.map((client) => ({
+    id: client.id,
+    name: client.name || 'N/A',
+    email: client.email || 'N/A',
+    phone: client.phone || 'N/A',
+    location: 'N/A',
+    total: 'R$ 0,00',
+    lastBuy: 'N/A',
+    status: 'Ativo',
+    statusClass: 'badge-ativo',
+    img: client.profile_image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(client.name || 'Cliente') + '&background=random'
+  }));
 
-  const filteredClients = clients.filter((client) => {
+  const filteredClients = transformedClients.filter((client) => {
     const term = searchTerm.toLowerCase();
     return (
       client.name.toLowerCase().includes(term) ||
@@ -94,7 +70,7 @@ const AdminClients = () => {
 
           <AdminTable
             title="Lista de Clientes"
-            data={clients}
+            data={transformedClients}
             filteredData={filteredClients}
             columns={[
               {
@@ -140,7 +116,7 @@ const AdminClients = () => {
                 )
               }
             ]}
-            isLoading={false}
+            isLoading={isLoading}
             emptyMessage="Nenhum cliente encontrado"
             countLabel="Clientes"
             showSortButton={false}
@@ -158,6 +134,7 @@ const AdminClients = () => {
               </div>
             )}
           />
+          {error && <div style={{color: 'red', marginTop: '16px'}}>Erro ao carregar clientes: {error}</div>}
         </div>
       </main>
     </div>

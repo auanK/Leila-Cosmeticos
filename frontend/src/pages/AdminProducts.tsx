@@ -2,66 +2,50 @@ import { useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminHeader from '../components/AdminHeader';
 import AdminTable from '../components/AdminTable';
+import { useProducts } from '../hooks/useProducts';
+import { useCategories } from '../hooks/useCategories';
 import '../styles/pages/admin.css';
 
 const AdminProducts = () => {
+  const { products: apiProducts, isLoading, error } = useProducts();
+  const { categories } = useCategories();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
 
-  const products = [
-    {
-      id: 1,
-      name: "Sérum Facial Iluminador Rosa",
-      detail: "Vitamina C + Ácido Hialurônico",
-      sku: "LC-SK-001",
-      category: "Skincare",
-      catClass: "tag-skincare", 
-      price: "R$ 129,90",
-      stock: 85,
-      stockStatus: "stock-ok",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCprCss1UmOE4N5XkFHyqOyejFJoGEW0oqXmcg80LKDGNVGNP9-F8is4BQqcmK3He4YX5kTP__u7SLPPr4lBSQ4bbSwadzKrjlo_3qAwhak6sBWxeKYpEx62uNDTyb_YbJDIGEhO2DY8cr-IUyXUxWn86-_k2jaIkWJfT9sLkzx0RbjnLG2qraR5Mj9ke1gyO3bfWEyTBinRoCCDqvAo1QeeudV5PnRj1Q-3Nt-_HFtP8NxyPYxBctb00M3JjjRpGB1kecDS-vsvEs"
-    },
-    {
-      id: 2,
-      name: "Batom Matte Velvet - Orquídea",
-      detail: "Longa duração 12h",
-      sku: "LC-MQ-042",
-      category: "Maquiagem",
-      catClass: "badge-pill badge-purple",
-      price: "R$ 45,00",
-      stock: 5,
-      stockStatus: "stock-low",
-      isLow: true,
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAlbouKeqyaIIWs2BWkyHPfjrOTPtTUpIz9jATPkaZvzSeNzs7_xvH62U73ukMCDw98YBopVfPHCgsf-M7DMNmi7SQCDRbDQphYkx-I8UyYuH6z8Kn2jDGrHqHgF1WEqnyV8dFt3plcQGcZdPTchw2xVTC1nKjXUBoGzgcJ2yR1_wAz9NEFXxXqONzqE8TwjuPswAbPJ9vTgMiLoOeLuGnswHQ6d0EnRKkWuYMUV0dmhrYGtwk9l3fwVB_hx86O23IVWPIxH6FuPxk"
-    },
-    {
-      id: 3,
-      name: "Eau de Parfum - Jardim Secreto",
-      detail: "Fragrância Floral 50ml",
-      sku: "LC-FR-015",
-      category: "Fragrâncias",
-      catClass: "badge-pill badge-amber",
-      price: "R$ 289,00",
-      stock: 12,
-      stockStatus: "stock-ok",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA1J2qGMDY4jDi-WdIfegVc50-jL126-mwTEbOJY3nV6bYwtJoD0_ttBGg1qjp3pbMytCxHA4xy2AxmE8Yn_C3BVnTfFcOmq7oBgsHXzB-tjgIT_0DPf2VUg6MXfgSFfK1ye4jTNGA00LQeB9SadN2C8j17q-MNQWezh-Gjr_tP-iJBzbBUJpUdU9yvt9_r_0z-wLx_nhjccT4ty4eRKlz9SMLCW26YAjwSdMKk2_IE0jbOgb6TP80Al7UbczllJYOBsvanh6pnT38"
-    },
-    {
-      id: 4,
-      name: "Pó Translúcido HD No-Filter",
-      detail: "Acabamento Matte 20g",
-      sku: "LC-MQ-088",
-      category: "Maquiagem",
-      catClass: "badge-pill badge-purple",
-      price: "R$ 78,90",
-      stock: 0,
-      stockStatus: "stock-out",
-      isOut: true,
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAZVLJxbEhSAfuZVws8RlRayfFfXrHb_ArX6AdUrU3HClR3YeCHF5f_zzqAxfLiIUTF2NtPhUtBcCPKeoIm1creyf4fjUFsMoyx1h7SBm9CjoKoBrl5ym7BNtXtPMB8roaPGm-f5GOfcmeNz8XWB6jgTNpiifhCehZ7Lo1SnrzEI9YhiM-tRQy8zTbGLAFByJ0FoqTNFWhtQeCp48LwVRh575fDMpJIl6K4VrO8wHualSfUSsZcXXnsb17fIJOpqg-x1jfGXHhpF7Q"
-    }
-  ];
+  const getStockStatus = (stock: number | undefined) => {
+    if (!stock || stock === 0) return { status: 'stock-out', label: 'ESGOTADO', isOut: true };
+    if (stock < 10) return { status: 'stock-low', label: 'BAIXO', isLow: true };
+    return { status: 'stock-ok', label: '' };
+  };
 
-  const filteredProducts = products.filter((product) => {
+  const getCategoryClass = (categoryId?: number) => {
+    const categoryName = categories.find(c => c.id === categoryId)?.name || '';
+    const nameUpper = categoryName.toLowerCase();
+    
+    if (nameUpper.includes('skincare')) return 'tag-skincare';
+    if (nameUpper.includes('maquiagem') || nameUpper.includes('makeup')) return 'badge-pill badge-purple';
+    if (nameUpper.includes('fragr') || nameUpper.includes('parfum')) return 'badge-pill badge-amber';
+    return 'tag-skincare';
+  };
+
+  const transformedProducts = apiProducts.map((product) => {
+    const stockInfo = getStockStatus(product.current_stock);
+    return {
+      ...product,
+      detail: product.description || product.brand || '',
+      sku: `PROD-${product.id}`,
+      category: categories.find(c => c.id === product.category_id)?.name || 'N/A',
+      catClass: getCategoryClass(product.category_id),
+      price: product.price_from ? `R$ ${product.price_from.toFixed(2).replace('.', ',')}` : 'N/A',
+      stock: product.current_stock || 0,
+      stockStatus: stockInfo.status,
+      isLow: stockInfo.isLow,
+      isOut: stockInfo.isOut,
+      img: product.main_image || 'https://via.placeholder.com/100'
+    };
+  });
+
+  const filteredProducts = transformedProducts.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !categoryFilter || categoryFilter === '' || product.category === categoryFilter;
@@ -105,9 +89,9 @@ const AdminProducts = () => {
                   onChange={(e) => setCategoryFilter(e.target.value)}
                 >
                   <option value="">Todas as Categorias</option>
-                  <option value="Skincare">Skincare</option>
-                  <option value="Maquiagem">Maquiagem</option>
-                  <option value="Fragrâncias">Fragrâncias</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.name}>{category.name}</option>
+                  ))}
                 </select>
               </div>
               <button className="btn" style={{background: 'var(--bg-body)', height: '44px'}}>
@@ -119,7 +103,7 @@ const AdminProducts = () => {
 
           <AdminTable
             title="Lista de Produtos"
-            data={products}
+            data={transformedProducts}
             filteredData={filteredProducts}
             columns={[
               {
@@ -174,7 +158,7 @@ const AdminProducts = () => {
                 )
               }
             ]}
-            isLoading={false}
+            isLoading={isLoading}
             emptyMessage="Nenhum produto cadastrado"
             emptyFilteredMessage="Nenhum produto encontrado"
             countLabel="Produtos"
@@ -195,6 +179,7 @@ const AdminProducts = () => {
               </div>
             )}
           />
+          {error && <div style={{color: 'red', marginTop: '16px'}}>Erro ao carregar produtos: {error}</div>}
         </div>
       </main>
     </div>
