@@ -50,11 +50,6 @@ const AdminTable = ({
           </span>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          {showSortButton && (
-            <button className="btn btn-outline">
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>sort</span> Ordenar
-            </button>
-          )}
           {onAdd && (
             <button className="btn btn-primary" onClick={onAdd}>
               <span className="material-symbols-outlined">{addButtonIcon}</span>

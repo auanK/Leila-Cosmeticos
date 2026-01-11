@@ -1,3 +1,4 @@
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/admin.css';
 
 interface AdminHeaderProps {
@@ -15,6 +16,7 @@ const AdminHeader = ({
   onSearchChange,
   align = 'space-between'
 }: AdminHeaderProps) => {
+  const { user } = useAuth();
   const justifyContent = align === 'right' ? 'flex-end' : 'space-between';
 
   return (
@@ -32,21 +34,26 @@ const AdminHeader = ({
       )}
 
       <div className="header-actions">
-        <button className="btn btn-icon">
-          <span className="material-symbols-outlined">notifications</span>
-        </button>
         <div className="user-profile">
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontWeight: 'bold', margin: 0, fontSize: '14px' }}>Leila Souza</p>
-            <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '10px' }}>Administradora</p>
+            <p style={{ fontWeight: 'bold', margin: 0, fontSize: '14px' }}>{user?.name || 'Usuário'}</p>
+            <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '10px' }}>Administrador(a)</p>
           </div>
           <div
             className="avatar"
             style={{
-              backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDEqI2geNVfiSWkVsgwXgt9RqnLZmla7AMT_lq1UAamW-TSMCJESlmr-NsilHqBh_Jtcdn3OI6qFms_bU1B9lgt2RTtV1w8FDvUMexNIQOGQ25qZntL706QEodWilON9q63h3G3a-MmVeexk3lVyjufgQJU40wD0oia1Hysp6G0pLodM_sDnwOI1VgKvoyd0CxZlnR48Scsfm1IsTwvqAkrtdmoRYZmx12OYVCniEa_7krsU3euq3JKldsvgkyfC-4fEQiqO1uIm5Y')"
+              backgroundImage: user?.profile_image ? `url('${user.profile_image}')` : 'none',
+              backgroundColor: user?.profile_image ? 'transparent' : 'var(--primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '16px'
             }}
-          ></div>
+          >
+            {!user?.profile_image && user?.name?.charAt(0).toUpperCase()}
+          </div>
         </div>
       </div>
     </header>

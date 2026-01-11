@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import type { AdminOrder, AdminUser } from '../services/api';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminHeader from '../components/AdminHeader';
 import AdminTable from '../components/AdminTable';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/admin.css';
 
 interface Product {
@@ -13,6 +16,7 @@ interface Product {
   current_stock?: number;
   main_image?: string;
   category_names?: string[];
+  category_ids?: number[];
 }
 
 interface Category {
@@ -20,42 +24,56 @@ interface Category {
   name: string;
 }
 
-interface Order {
-  id: number;
-  status: string;
-  total_amount: string;
-  created_at: string;
-}
-
 const Admin = () => {
+  const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [clients, setClients] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [newProduct, setNewProduct] = useState({
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
     name: '',
+    description: '',
     price_from: '',
     price_to: '',
     current_stock: '',
+    brand: '',
+    main_image: '',
     category_ids: [] as number[]
   });
 
+  // Verificação imediata de permissão de admin
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!authLoading && (!user || !user.isAdmin)) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user?.isAdmin && !authLoading) {
+      fetchData();
+    }
+  }, [user?.isAdmin, authLoading]);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [productsData, categoriesData, ordersData] = await Promise.all([
+      const [productsData, categoriesData, ordersData, clientsData] = await Promise.all([
         api.getProducts(),
         api.getCategories(),
-        api.getOrders().catch(() => [])
+        api.getAdminOrders().catch(() => []),
+        api.getAdminUsers().catch(() => [])
       ]);
       setProducts(productsData);
       setCategories(categoriesData);
       setOrders(ordersData);
+      setClients(clientsData);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     } finally {
@@ -63,36 +81,122 @@ const Admin = () => {
     }
   };
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProduct.name || !newProduct.price_from) return;
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      price_from: '',
+      price_to: '',
+      current_stock: '',
+      brand: '',
+      main_image: '',
+      category_ids: []
+    });
+    setEditingProduct(null);
+  };
 
-    setIsLoading(true);
+  const openCreateModal = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name || '',
+      description: '',
+      price_from: String(product.price_from || ''),
+      price_to: String(product.price_to || ''),
+      current_stock: String(product.current_stock || ''),
+      brand: '',
+      main_image: product.main_image || '',
+      category_ids: product.category_ids || []
+    });
+    setIsModalOpen(true);
+  };
+
+  const openDeleteModal = (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.price_to) return;
+
+    setIsSaving(true);
     try {
-      await api.createProduct({
-        name: newProduct.name,
-        description: '',
-        price_from: parseFloat(newProduct.price_from),
-        price_to: parseFloat(newProduct.price_to || newProduct.price_from),
-        current_stock: parseInt(newProduct.current_stock) || 0,
-        main_image: '',
-        category_id: newProduct.category_ids[0] || 0
-      });
-      setNewProduct({ name: '', price_from: '', price_to: '', current_stock: '', category_ids: [] });
+      const productData = {
+        name: formData.name,
+        description: formData.description,
+        price_from: formData.price_from ? parseFloat(formData.price_from) : undefined,
+        price_to: parseFloat(formData.price_to),
+        current_stock: formData.current_stock ? parseInt(formData.current_stock) : 0,
+        main_image: formData.main_image,
+        brand: formData.brand,
+        category_ids: formData.category_ids.length > 0 ? formData.category_ids : [categories[0]?.id || 1]
+      };
+
+      if (editingProduct) {
+        await api.updateProduct(editingProduct.id, productData);
+      } else {
+        await api.createProduct(productData);
+      }
+      resetForm();
       setIsModalOpen(false);
       await fetchData();
     } catch (error) {
-      console.error('Erro ao criar produto:', error);
+      console.error('Erro ao salvar produto:', error);
+      alert(error instanceof Error ? error.message : 'Erro ao salvar produto');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const stats = [
-    { title: "Vendas Totais", value: "R$ 12.450,00", change: "+12.5%", icon: "payments" },
-    { title: "Pedidos Realizados", value: orders.length.toString(), change: "+5.2%", icon: "shopping_cart" },
-    { title: "Novos Clientes", value: "28", change: "+18.0%", icon: "person_add" }
-  ];
+  const handleDelete = async () => {
+    if (!productToDelete) return;
+    setIsSaving(true);
+    try {
+      await api.deleteProduct(productToDelete.id);
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+      await fetchData();
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error);
+      alert(error instanceof Error ? error.message : 'Erro ao excluir produto');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const stats = useMemo(() => {
+    const totalSales = orders.reduce((acc, order) => acc + Number(order.total_amount || 0), 0);
+    return [
+      { 
+        title: "Vendas Totais", 
+        value: `R$ ${totalSales.toFixed(2).replace('.', ',')}`, 
+        change: "+12.5%", 
+        icon: "payments" 
+      },
+      { 
+        title: "Pedidos Realizados", 
+        value: orders.length.toString(), 
+        change: "+5.2%", 
+        icon: "shopping_cart" 
+      },
+      { 
+        title: "Clientes Cadastrados", 
+        value: clients.length.toString(), 
+        change: "+18.0%", 
+        icon: "person_add" 
+      }
+    ];
+  }, [orders, clients]);
+
+  // Se ainda está carregando auth ou não é admin, não renderiza nada
+  if (authLoading || !user || !user.isAdmin) {
+    return null;
+  }
 
   return (
     <div className="dashboard-container">
@@ -163,7 +267,7 @@ const Admin = () => {
                 key: 'price_to',
                 label: 'Preço',
                 render: (value, row) => (
-                  <span style={{fontWeight: '600'}}>R$ {(value || row.price_from || 0).toFixed(2)}</span>
+                  <span style={{fontWeight: '600'}}>R$ {Number(value || row.price_from || 0).toFixed(2)}</span>
                 )
               },
               {
@@ -176,12 +280,12 @@ const Admin = () => {
                 )
               },
               {
-                key: 'current_stock',
+                key: 'status',
                 label: 'Status',
-                render: (value) => (
-                  <div className={`status-dot ${(value || 0) < 5 ? 'status-low' : 'status-active'}`}>
+                render: (_value, row) => (
+                  <div className={`status-dot ${(row.current_stock || 0) < 5 ? 'status-low' : 'status-active'}`}>
                     <span className="dot"></span>
-                    {(value || 0) < 5 ? 'Baixo Estoque' : 'Ativo'}
+                    {(row.current_stock || 0) < 5 ? 'Baixo Estoque' : 'Ativo'}
                   </div>
                 )
               }
@@ -189,16 +293,13 @@ const Admin = () => {
             isLoading={isLoading}
             emptyMessage="Nenhum produto cadastrado"
             countLabel="Produtos"
-            onAdd={() => setIsModalOpen(true)}
-            addButtonLabel="Novo Produto"
-            addButtonIcon="add"
-            showSortButton={true}
-            actions={() => (
+            showSortButton={false}
+            actions={(row) => (
               <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
-                <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)'}}>
+                <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#3b82f6'}} onClick={() => openEditModal(row)}>
                   <span className="material-symbols-outlined">edit</span>
                 </button>
-                <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444'}}>
+                <button className="btn-icon" style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444'}} onClick={() => openDeleteModal(row)}>
                   <span className="material-symbols-outlined">delete</span>
                 </button>
               </div>
@@ -208,80 +309,123 @@ const Admin = () => {
         </div>
       </main>
 
-      {/* Modal */}
+      {/* Modal Criar/Editar */}
       {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="table-header">
-              <h3 style={{margin: 0}}>Novo Produto</h3>
-              <button 
-                onClick={() => setIsModalOpen(false)} 
-                style={{background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)'}}
-              >
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '520px'}}>
+            <div className="modal-header">
+              <h3>{editingProduct ? 'Editar Produto' : 'Novo Produto'}</h3>
+              <button className="btn-icon" onClick={() => setIsModalOpen(false)}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form className="modal-body" onSubmit={handleCreateProduct}>
-              <div className="form-group">
-                <label>Nome do Produto</label>
-                <input 
-                  className="form-input" 
-                  placeholder="Ex: Batom Matte Coral" 
-                  type="text"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                  required
-                />
-              </div>
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
-                <div className="form-group">
-                  <label>Preço (R$)</label>
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                <div className="input-group">
+                  <label className="input-label">Nome do Produto *</label>
                   <input 
                     className="form-input" 
-                    placeholder="0,00" 
-                    type="number" 
-                    step="0.01"
-                    value={newProduct.price_from}
-                    onChange={(e) => setNewProduct({...newProduct, price_from: e.target.value})}
+                    placeholder="Ex: Batom Matte Coral" 
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label>Estoque</label>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px'}}>
+                  <div className="input-group">
+                    <label className="input-label">Preço (R$) *</label>
+                    <input 
+                      className="form-input" 
+                      placeholder="0,00" 
+                      type="number" 
+                      step="0.01"
+                      value={formData.price_to}
+                      onChange={(e) => setFormData({...formData, price_to: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Estoque</label>
+                    <input 
+                      className="form-input" 
+                      placeholder="0" 
+                      type="number"
+                      value={formData.current_stock}
+                      onChange={(e) => setFormData({...formData, current_stock: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="input-group" style={{marginTop: '16px'}}>
+                  <label className="input-label">URL da Imagem</label>
                   <input 
                     className="form-input" 
-                    placeholder="0" 
-                    type="number"
-                    value={newProduct.current_stock}
-                    onChange={(e) => setNewProduct({...newProduct, current_stock: e.target.value})}
+                    placeholder="https://exemplo.com/imagem.jpg" 
+                    type="url"
+                    value={formData.main_image}
+                    onChange={(e) => setFormData({...formData, main_image: e.target.value})}
                   />
+                  {formData.main_image && (
+                    <div style={{marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                      <img 
+                        src={formData.main_image} 
+                        alt="Preview" 
+                        style={{width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border)'}}
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                      />
+                      <span style={{fontSize: '12px', color: 'var(--text-muted)'}}>Preview da imagem</span>
+                    </div>
+                  )}
+                </div>
+                <div className="input-group" style={{marginTop: '16px'}}>
+                  <label className="input-label">Categoria</label>
+                  <select 
+                    className="form-input"
+                    value={formData.category_ids[0] || ''}
+                    onChange={(e) => setFormData({...formData, category_ids: e.target.value ? [parseInt(e.target.value)] : []})}
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
-              <div className="form-group">
-                <label>Categoria</label>
-                <select 
-                  className="form-input"
-                  multiple
-                  value={newProduct.category_ids.map(String)}
-                  onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
-                    setNewProduct({...newProduct, category_ids: selected});
-                  }}
-                >
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="modal-actions">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-outline btn-full">
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
-                  {isLoading ? 'Salvando...' : 'Salvar Produto'}
+                <button type="submit" className="btn btn-primary" disabled={isSaving}>
+                  {isSaving ? 'Salvando...' : (editingProduct ? 'Salvar Alterações' : 'Criar Produto')}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirmação de Exclusão */}
+      {isDeleteModalOpen && productToDelete && (
+        <div className="modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Confirmar Exclusão</h3>
+              <button className="btn-icon" onClick={() => setIsDeleteModalOpen(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Tem certeza que deseja excluir o produto <strong>"{productToDelete.name}"</strong>?</p>
+              <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>Esta ação não pode ser desfeita.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setIsDeleteModalOpen(false)}>
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={handleDelete} disabled={isSaving}>
+                {isSaving ? 'Excluindo...' : 'Excluir Produto'}
+              </button>
+            </div>
           </div>
         </div>
       )}
