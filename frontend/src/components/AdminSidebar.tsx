@@ -37,9 +37,9 @@ const AdminSidebar = () => {
       </nav>
 
       <div className="nav-footer">
-        <Link to="/admin/configuracoes" className="nav-item">
-          <span className="material-symbols-outlined">settings</span>
-          Configurações
+        <Link to="/" className="nav-item">
+          <span className="material-symbols-outlined">storefront</span>
+          Voltar à Loja
         </Link>
         <Link to="/login" className="nav-item" style={{ color: '#ef4444' }}>
           <span className="material-symbols-outlined">logout</span>

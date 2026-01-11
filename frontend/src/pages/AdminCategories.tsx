@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminHeader from '../components/AdminHeader';
 import AdminTable from '../components/AdminTable';
 import { api } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/admin.css';
 
 interface Category {
@@ -14,19 +16,34 @@ interface Category {
 }
 
 const Categories = () => {
+  const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [newCategory, setNewCategory] = useState({
+  const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    is_featured: false
   });
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    if (!authLoading && (!user || !user.isAdmin)) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user?.isAdmin) {
+      fetchCategories();
+    }
+  }, [user?.isAdmin]);
 
   const fetchCategories = async () => {
     setIsLoading(true);
@@ -50,26 +67,72 @@ const Categories = () => {
     return matchesTerm && matchesCategory;
   });
 
-  const handleCreateCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCategory.name) return;
+  const resetForm = () => {
+    setFormData({ name: '', description: '', is_featured: false });
+    setEditingCategory(null);
+  };
 
-    setIsLoading(true);
+  const openCreateModal = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (category: Category) => {
+    setEditingCategory(category);
+    setFormData({
+      name: category.name,
+      description: category.description || '',
+      is_featured: category.is_featured || false
+    });
+    setIsModalOpen(true);
+  };
+
+  const openDeleteModal = (category: Category) => {
+    setCategoryToDelete(category);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name) return;
+
+    setIsSaving(true);
     try {
-      await api.createCategory({
-        name: newCategory.name,
-        description: newCategory.description,
-        is_featured: false
-      });
-      setNewCategory({ name: '', description: '' });
+      if (editingCategory) {
+        await api.updateCategory(editingCategory.id, formData);
+      } else {
+        await api.createCategory(formData);
+      }
+      resetForm();
       setIsModalOpen(false);
       await fetchCategories();
     } catch (error) {
-      console.error('Erro ao criar categoria:', error);
+      console.error('Erro ao salvar categoria:', error);
+      alert(error instanceof Error ? error.message : 'Erro ao salvar categoria');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (!categoryToDelete) return;
+    setIsSaving(true);
+    try {
+      await api.deleteCategory(categoryToDelete.id);
+      setIsDeleteModalOpen(false);
+      setCategoryToDelete(null);
+      await fetchCategories();
+    } catch (error) {
+      console.error('Erro ao excluir categoria:', error);
+      alert(error instanceof Error ? error.message : 'Erro ao excluir categoria');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (authLoading || !user || !user.isAdmin) {
+    return null;
+  }
 
   return (
     <div className="dashboard-container">
@@ -102,10 +165,6 @@ const Categories = () => {
                 />
               </div>
             </div>
-            <button className="btn" style={{background: 'var(--bg-body)', height: '44px'}}>
-              <span className="material-symbols-outlined">filter_list</span>
-              Filtros Avançados
-            </button>
           </div>
         </section>
 
@@ -147,20 +206,22 @@ const Categories = () => {
             emptyMessage="Nenhuma categoria cadastrada"
             emptyFilteredMessage="Nenhuma categoria encontrada"
             countLabel="Categorias"
-            onAdd={() => setIsModalOpen(true)}
+            onAdd={openCreateModal}
             addButtonLabel="Nova Categoria"
             addButtonIcon="add_circle"
-            actions={() => (
+            actions={(row) => (
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button
                   className="btn-icon"
-                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }}
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#3b82f6' }}
+                  onClick={() => openEditModal(row)}
                 >
                   <span className="material-symbols-outlined">edit</span>
                 </button>
                 <button
                   className="btn-icon"
                   style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444' }}
+                  onClick={() => openDeleteModal(row)}
                 >
                   <span className="material-symbols-outlined">delete</span>
                 </button>
@@ -171,52 +232,89 @@ const Categories = () => {
         </div>
       </main>
 
-      {/* Modal Nova Categoria */}
+      {/* Modal Criar/Editar Categoria */}
       {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal" style={{maxWidth: '720px'}}>
-            <div className="table-header">
-              <h3 style={{margin: 0}}>Nova Categoria</h3>
-              <button 
-                onClick={() => setIsModalOpen(false)} 
-                style={{background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)'}}
-              >
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '520px'}}>
+            <div className="modal-header">
+              <h3>{editingCategory ? 'Editar Categoria' : 'Nova Categoria'}</h3>
+              <button className="btn-icon" onClick={() => setIsModalOpen(false)}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form className="modal-body" onSubmit={handleCreateCategory}>
-              <div className="form-group">
-                <label>Nome da Categoria</label>
-                <input 
-                  className="form-input" 
-                  placeholder="Ex: Higiene Corporal" 
-                  type="text"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Descrição</label>
-                <textarea 
-                  className="form-input" 
-                  placeholder="Descreva a categoria..." 
-                  rows={3}
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
-                />
-              </div>
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                <div className="input-group">
+                  <label className="input-label">Nome da Categoria *</label>
+                  <input 
+                    className="form-input" 
+                    placeholder="Ex: Higiene Corporal" 
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className="input-group">
+                  <label className="input-label">Descrição</label>
+                  <textarea 
+                    className="form-input" 
+                    placeholder="Descreva a categoria..." 
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  />
+                </div>
 
-              <div className="modal-actions">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-outline btn-full">
+                <div className="input-group">
+                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer'}}>
+                    <input 
+                      type="checkbox" 
+                      checked={formData.is_featured}
+                      onChange={(e) => setFormData({...formData, is_featured: e.target.checked})}
+                    />
+                    Categoria em Destaque
+                  </label>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
-                  {isLoading ? 'Criando...' : 'Criar Categoria'}
+                <button type="submit" className="btn btn-primary" disabled={isSaving}>
+                  {isSaving ? 'Salvando...' : (editingCategory ? 'Salvar Alterações' : 'Criar Categoria')}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirmar Exclusão */}
+      {isDeleteModalOpen && categoryToDelete && (
+        <div className="modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Confirmar Exclusão</h3>
+              <button className="btn-icon" onClick={() => setIsDeleteModalOpen(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Tem certeza que deseja excluir a categoria <strong>"{categoryToDelete.name}"</strong>?</p>
+              <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>
+                Categorias com produtos associados não podem ser excluídas.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setIsDeleteModalOpen(false)}>
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={handleDelete} disabled={isSaving}>
+                {isSaving ? 'Excluindo...' : 'Excluir Categoria'}
+              </button>
+            </div>
           </div>
         </div>
       )}

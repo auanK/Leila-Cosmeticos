@@ -25,8 +25,8 @@
 .page-content {
   display: flex;
   flex: 1;
-  justify-content: center;
-  padding: 20px 16px;
+  justify-content: left;
+  padding: 20px 200px;
   gap: 4px;
 }
 
@@ -90,10 +90,10 @@
 /* Responsividade para páginas internas */
 @media (min-width: 1024px) {
   .page-content {
-    padding: 20px 160px;
+    padding: 20px 20px;
   }
   
   .product-detail-container {
-    padding: 20px 160px;
+    padding: 20px 20px;
   }
 }

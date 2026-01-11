@@ -74,14 +74,26 @@ class ApiService {
   }
 
   async getProduct(id: number): Promise<Product | null> {
-    const products = await this.getProducts();
-    return products.find(p => p.id === id) || null;
+    return this.request<Product>(`/products/${id}`);
   }
 
   async createProduct(productData: CreateProductData) {
     return this.request<Product>('/products', {
       method: 'POST',
       body: productData,
+    });
+  }
+
+  async updateProduct(id: number, productData: Partial<CreateProductData>) {
+    return this.request<Product>(`/products/${id}`, {
+      method: 'PUT',
+      body: productData,
+    });
+  }
+
+  async deleteProduct(id: number) {
+    return this.request<{ message: string }>(`/products/${id}`, {
+      method: 'DELETE',
     });
   }
 
@@ -93,6 +105,39 @@ class ApiService {
     return this.request<Category>('/categories', {
       method: 'POST',
       body: categoryData,
+    });
+  }
+
+  async updateCategory(id: number, categoryData: Partial<CreateCategoryData>) {
+    return this.request<Category>(`/categories/${id}`, {
+      method: 'PUT',
+      body: categoryData,
+    });
+  }
+
+  async deleteCategory(id: number) {
+    return this.request<{ message: string }>(`/categories/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Admin methods
+  async getAdminUsers() {
+    return this.request<AdminUser[]>('/admin/users');
+  }
+
+  async getAdminOrders() {
+    return this.request<AdminOrder[]>('/admin/orders');
+  }
+
+  async getAdminOrder(id: number) {
+    return this.request<AdminOrderDetail>(`/admin/orders/${id}`);
+  }
+
+  async updateOrderStatus(id: number, status: string) {
+    return this.request<{ message: string }>(`/admin/orders/${id}/status`, {
+      method: 'PUT',
+      body: { status },
     });
   }
 
@@ -284,6 +329,7 @@ export interface User {
   phone?: string;
   role?: string;
   profile_image?: string;
+  isAdmin?: boolean;
 }
 
 export interface UserData {
@@ -326,7 +372,9 @@ export interface Product {
 }
 
 export interface CreateProductData {
-  category_id: number;
+  category_id?: number;
+  category_ids?: number[];
+  additional_images?: string[];
   name: string;
   description?: string;
   price_from?: number;
@@ -402,6 +450,43 @@ export interface CreateAddressData {
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  cpf?: string;
+  phone?: string;
+  is_admin: boolean;
+  profile_image?: string;
+  created_at: string;
+  total_spent: string;
+  last_order_date?: string;
+  order_count: number;
+}
+
+export interface AdminOrder {
+  id: number;
+  user_id: number;
+  total_amount: string;
+  status: string;
+  created_at: string;
+  user_name: string;
+  user_email: string;
+  user_photo?: string;
+  items: OrderItem[];
+}
+
+export interface AdminOrderDetail extends AdminOrder {
+  user_phone?: string;
+  street?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
 }
 
 export const api = new ApiService(API_BASE_URL);
