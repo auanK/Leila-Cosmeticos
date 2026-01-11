@@ -12,7 +12,7 @@ export const createUser = async (userData) => {
     const query = `
         INSERT INTO users (name, email, password_hash, cpf, phone, is_admin)
         VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, name, email, is_admin, created_at
+        RETURNING *;
     `;
 
     const values = [name, email, passwordHash, cpf, phone, isAdmin || false];
@@ -21,7 +21,7 @@ export const createUser = async (userData) => {
 };
 
 export const findById = async (id) => {
-    const query = 'SELECT id, name, email, cpf, phone, is_admin, profile_image, created_at FROM users WHERE id = $1';
+    const query = 'SELECT * FROM users WHERE id = $1';
     const result = await pool.query(query, [id]);
     return result.rows[0];
 };
@@ -36,7 +36,7 @@ export const update = async (userId, data) => {
             password_hash = COALESCE($4, password_hash),
             profile_image = COALESCE($5, profile_image)
         WHERE id = $6
-        RETURNING id, name, email, phone, cpf, is_admin, profile_image;
+        RETURNING *; -- Alterado: O asterisco retorna a linha inteira atualizada
     `;
 
     const values = [
@@ -45,7 +45,6 @@ export const update = async (userId, data) => {
         data.phone || null,
         data.passwordHash || null,
         data.profileImage || null,
-
         userId
     ];
 
