@@ -24,12 +24,24 @@ router.post('/auth/login', authController.login);
 router.get('/categories', categoryController.list);
 router.get('/products', productController.list);
 router.get('/products/:id/related', productController.listRelated);
+router.get('/products/:id', productController.getById);
 
 router.get('/users/me', verifyToken, userController.getMe);
 router.put('/users/me', verifyToken, userController.update);
 
 router.post('/categories', verifyToken, requireAdmin, categoryController.create);
+router.put('/categories/:id', verifyToken, requireAdmin, categoryController.update);
+router.delete('/categories/:id', verifyToken, requireAdmin, categoryController.remove);
+
 router.post('/products', verifyToken, requireAdmin, productController.create);
+router.put('/products/:id', verifyToken, requireAdmin, productController.update);
+router.delete('/products/:id', verifyToken, requireAdmin, productController.remove);
+
+router.get('/admin/users', verifyToken, requireAdmin, userController.listAll);
+
+router.get('/admin/orders', verifyToken, requireAdmin, orderController.listAll);
+router.get('/admin/orders/:id', verifyToken, requireAdmin, orderController.getById);
+router.put('/admin/orders/:id/status', verifyToken, requireAdmin, orderController.updateStatus);
 
 router.get('/cart', verifyToken, cartController.getCart);
 router.post('/cart/add', verifyToken, cartController.addItem);

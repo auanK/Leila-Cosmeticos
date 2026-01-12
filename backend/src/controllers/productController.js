@@ -63,3 +63,39 @@ export const listRelated = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const update = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const productData = {
+            categoryIds: req.body.category_ids,
+            additionalImages: req.body.additional_images,
+
+            name: req.body.name,
+            description: req.body.description,
+            priceFrom: req.body.price_from,
+            priceTo: req.body.price_to,
+            currentStock: req.body.current_stock,
+            brand: req.body.brand,
+            skinType: req.body.skin_type,
+            weightGrams: req.body.weight_grams,
+            isActive: req.body.is_active,
+            mainImage: req.body.main_image
+        };
+
+        const updatedProduct = await productService.updateProduct(id, productData);
+        res.json(updatedProduct);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+export const remove = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await productService.deleteProduct(id);
+        res.json({ message: 'Produto removido com sucesso.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};

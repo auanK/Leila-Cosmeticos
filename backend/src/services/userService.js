@@ -26,3 +26,7 @@ export const updateProfile = async (userId, data) => {
 
     return updatedUser;
 };
+
+export const getAllUsers = async () => {
+    return await userRepository.findAll();
+};
