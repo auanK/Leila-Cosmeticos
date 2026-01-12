@@ -12,7 +12,7 @@ Sistema de e-commerce desenvolvido como trabalho final da disciplina de **Engenh
 
 ## Links Rápidos
 
-- **[Acesse o Sistema Online]()**
+- **[Acesse o Sistema Online](https://leila-cosmeticos.auank.com/)**
 - **[Documentação de Requisitos e Diagramas](./docs)** (Contém o PDF dos requisitos, slides de apresentação e testes).
 - **[Documentação do Backend](./backend)** (Detalhes da API e arquitetura).
 - **[Documentação do Frontend](./frontend)** (Detalhes da interface React).
