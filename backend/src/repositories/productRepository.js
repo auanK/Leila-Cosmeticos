@@ -152,3 +152,95 @@ export const findRelated = async (productId) => {
     const result = await pool.query(query, [productId]);
     return result.rows;
 };
+
+export const update = async (id, data) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const {
+            categoryIds, additionalImages,
+            name, description, priceFrom, priceTo,
+            currentStock, brand, skinType, weightGrams, isActive, mainImage
+        } = data;
+
+        const updateQuery = `
+            UPDATE products SET
+                name = COALESCE($1, name),
+                description = COALESCE($2, description),
+                price_from = COALESCE($3, price_from),
+                price_to = COALESCE($4, price_to),
+                current_stock = COALESCE($5, current_stock),
+                brand = COALESCE($6, brand),
+                skin_type = COALESCE($7, skin_type),
+                weight_grams = COALESCE($8, weight_grams),
+                is_active = COALESCE($9, is_active),
+                main_image = COALESCE($10, main_image)
+            WHERE id = $11
+            RETURNING *
+        `;
+
+        const values = [
+            name, description, priceFrom, priceTo,
+            currentStock, brand, skinType, weightGrams, isActive, mainImage, id
+        ];
+
+        const result = await client.query(updateQuery, values);
+        const updatedProduct = result.rows[0];
+
+        if (!updatedProduct) {
+            throw new Error('Produto não encontrado');
+        }
+
+        if (categoryIds && categoryIds.length > 0) {
+            await client.query('DELETE FROM product_categories WHERE product_id = $1', [id]);
+            for (const catId of categoryIds) {
+                await client.query(
+                    'INSERT INTO product_categories (product_id, category_id) VALUES ($1, $2)',
+                    [id, catId]
+                );
+            }
+        }
+
+        if (additionalImages && additionalImages.length > 0) {
+            await client.query('DELETE FROM product_images WHERE product_id = $1', [id]);
+            for (const imgUrl of additionalImages) {
+                await client.query(
+                    'INSERT INTO product_images (product_id, image_url) VALUES ($1, $2)',
+                    [id, imgUrl]
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+        return updatedProduct;
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+export const remove = async (id) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        
+        await client.query('DELETE FROM product_categories WHERE product_id = $1', [id]);
+        await client.query('DELETE FROM product_images WHERE product_id = $1', [id]);
+        await client.query('DELETE FROM cart_items WHERE product_id = $1', [id]);
+        await client.query('DELETE FROM wishlists WHERE product_id = $1', [id]);
+        
+        const result = await client.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
+        
+        await client.query('COMMIT');
+        return result.rows[0];
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};

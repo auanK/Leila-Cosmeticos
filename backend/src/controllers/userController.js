@@ -9,15 +9,6 @@ export const getMe = async (req, res) => {
     }
 };
 
-export const listClients = async (_req, res) => {
-    try {
-        const users = await userService.listClients();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
 export const update = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -38,5 +29,14 @@ export const update = async (req, res) => {
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+};
+
+export const listAll = async (req, res) => {
+    try {
+        const users = await userService.getAllUsers();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 };
